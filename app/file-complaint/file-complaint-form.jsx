@@ -43,6 +43,9 @@ export function FileComplaintForm() {
   const [values, setValues] = useState(emptyForm);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState(null);
+  const [apiError, setApiError] = useState("");
 
   function update(field, value) {
     setValues((current) => ({ ...current, [field]: value }));
@@ -98,6 +101,66 @@ export function FileComplaintForm() {
     setSubmitted(true);
   }
 
+  async function handleSubmitComplaint() {
+    setSubmitting(true);
+    setApiError("");
+    try {
+      const response = await fetch("/api/complaints", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setResult({ registrationNumber: data.registrationNumber });
+        return;
+      }
+      if (data?.errors) {
+        setErrors(data.errors);
+        setSubmitted(false);
+        document.getElementById(errorSummaryId)?.focus();
+        return;
+      }
+      setApiError("Something went wrong. Please try again.");
+    } catch {
+      setApiError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (result) {
+    return (
+      <div className="border-l-4 border-primary bg-muted px-5 py-6">
+        <h2 className="text-xl font-semibold">
+          Your complaint has been registered
+        </h2>
+        <p className="mt-2 text-base leading-7 text-foreground">
+          Keep this registration number safe. You will need it to track your
+          complaint.
+        </p>
+        <p className="mt-4 text-lg font-semibold">
+          {result.registrationNumber}
+        </p>
+        <div className="mt-6">
+          <Button
+            type="button"
+            variant="outline"
+            className="h-12 rounded-md px-6 text-base"
+            onClick={() => {
+              setResult(null);
+              setSubmitted(false);
+              setValues(emptyForm);
+              setErrors({});
+            }}
+          >
+            File another complaint
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (submitted) {
     return (
       <div className="border-l-4 border-primary bg-muted px-5 py-6">
@@ -135,18 +198,35 @@ export function FileComplaintForm() {
           </div>
         </dl>
         <div className="mt-6">
-          <Button
-            type="button"
-            variant="outline"
-            className="h-12 rounded-md px-6 text-base"
-            onClick={() => {
-              setSubmitted(false);
-              setValues(emptyForm);
-              setErrors({});
-            }}
-          >
-            File another complaint
-          </Button>
+          {apiError ? (
+            <p className="mb-4 text-base font-medium text-destructive">
+              {apiError}
+            </p>
+          ) : null}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Button
+              type="button"
+              size="lg"
+              className="h-12 rounded-md px-6 text-base"
+              disabled={submitting}
+              onClick={handleSubmitComplaint}
+            >
+              {submitting ? "Submitting…" : "Submit complaint"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="h-12 rounded-md px-6 text-base"
+              disabled={submitting}
+              onClick={() => {
+                setSubmitted(false);
+                setValues(emptyForm);
+                setErrors({});
+              }}
+            >
+              Change answers
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -339,7 +419,11 @@ export function FileComplaintForm() {
       </div>
 
       <div className="mt-10">
-        <Button type="submit" size="lg" className="h-12 rounded-md px-6 text-base">
+        <Button
+          type="submit"
+          size="lg"
+          className="h-12 rounded-md px-6 text-base"
+        >
           Continue
         </Button>
       </div>
