@@ -1,3 +1,4 @@
+import { Eyebrow } from "@/components/eyebrow";
 import { FileComplaintForm } from "./file-complaint-form";
 
 export const metadata = {
@@ -12,7 +13,8 @@ export default function FileComplaintPage() {
       id="main-content"
       className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6 sm:py-14"
     >
-      <h1 className="max-w-xl text-3xl font-semibold tracking-tight text-pretty sm:text-4xl">
+      <Eyebrow>File a complaint</Eyebrow>
+      <h1 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight text-pretty text-white sm:text-4xl">
         File a complaint
       </h1>
       <p className="mt-5 max-w-xl text-lg leading-8 text-foreground">
