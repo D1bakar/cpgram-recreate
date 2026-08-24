@@ -14,6 +14,20 @@ function isValidRegistration(value) {
   return /^[A-Za-z0-9/-]{6,20}$/.test(value.trim());
 }
 
+function statusClass(status) {
+  switch (status) {
+    case "Under Review":
+      return "bg-[#3b82f6]/10 text-[#3b82f6]";
+    case "Resolved":
+      return "bg-[#22c55e]/10 text-[#22c55e]";
+    case "Rejected":
+      return "bg-[#ef4444]/10 text-[#ef4444]";
+    case "Received":
+    default:
+      return "bg-[#6b7280]/10 text-[#6b7280]";
+  }
+}
+
 export function TrackComplaintForm() {
   const errorSummaryId = useId();
   const [registrationNumber, setRegistrationNumber] = useState("");
@@ -161,9 +175,15 @@ export function TrackComplaintForm() {
               {complaint.registrationNumber}
             </span>
           </p>
-          <p className="mt-1 text-base leading-7 text-foreground">
+          <p className="mt-1 flex flex-wrap items-center gap-2 text-base leading-7 text-foreground">
             <span className="font-semibold">Current status:</span>{" "}
-            {complaint.status}
+            <span
+              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass(
+                complaint.status,
+              )}`}
+            >
+              {complaint.status}
+            </span>
           </p>
           {complaint.department ? (
             <p className="mt-1 text-base leading-7 text-foreground">
@@ -181,7 +201,13 @@ export function TrackComplaintForm() {
           <ol className="mt-8 space-y-6">
             {complaint.history.map((entry) => (
               <li key={String(entry._id)}>
-                <p className="font-semibold">{entry.status}</p>
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass(
+                    entry.status,
+                  )}`}
+                >
+                  {entry.status}
+                </span>
                 {entry.note ? (
                   <p className="mt-1 text-base leading-7 text-foreground">
                     {entry.note}
