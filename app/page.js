@@ -48,6 +48,7 @@ export default function Home() {
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
           <Button
             size="lg"
+            nativeButton={false}
             render={<Link href="/file-complaint" />}
             className="h-12 px-6 text-base"
           >
@@ -56,6 +57,7 @@ export default function Home() {
           <Button
             variant="outline"
             size="lg"
+            nativeButton={false}
             render={<Link href="/track" />}
             className="h-12 px-6 text-base"
           >
