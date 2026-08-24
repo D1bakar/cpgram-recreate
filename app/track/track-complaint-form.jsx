@@ -19,13 +19,23 @@ export function TrackComplaintForm() {
   const [registrationNumber, setRegistrationNumber] = useState("");
   const [error, setError] = useState("");
   const [checked, setChecked] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [complaint, setComplaint] = useState(null);
 
-  function handleSubmit(event) {
+  function formatDate(value) {
+    return new Date(value).toLocaleString("en-IN", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  }
+
+  async function handleSubmit(event) {
     event.preventDefault();
 
     if (!registrationNumber.trim()) {
       setError("Enter your registration number");
       setChecked(false);
+      setComplaint(null);
       document.getElementById(errorSummaryId)?.focus();
       return;
     }
@@ -33,12 +43,41 @@ export function TrackComplaintForm() {
     if (!isValidRegistration(registrationNumber)) {
       setError("Enter a registration number between 6 and 20 characters");
       setChecked(false);
+      setComplaint(null);
       document.getElementById(errorSummaryId)?.focus();
       return;
     }
 
     setError("");
-    setChecked(true);
+    setLoading(true);
+    setChecked(false);
+    setComplaint(null);
+
+    try {
+      const response = await fetch(
+        `/api/complaints/${encodeURIComponent(
+          registrationNumber.trim().toUpperCase(),
+        )}`,
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(
+          data?.error ??
+            "We could not find a complaint with that registration number",
+        );
+        document.getElementById(errorSummaryId)?.focus();
+        return;
+      }
+
+      setComplaint(data.complaint);
+      setChecked(true);
+    } catch {
+      setError("Something went wrong. Please try again.");
+      document.getElementById(errorSummaryId)?.focus();
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -101,13 +140,14 @@ export function TrackComplaintForm() {
             type="submit"
             size="lg"
             className="h-12 rounded-md px-6 text-base"
+            disabled={loading}
           >
-            Track complaint
+            {loading ? "Checking…" : "Track complaint"}
           </Button>
         </div>
       </form>
 
-      {checked ? (
+      {checked && complaint ? (
         <section
           aria-labelledby="status-heading"
           className="mt-10 border-t border-border pt-10"
@@ -117,27 +157,45 @@ export function TrackComplaintForm() {
           </h2>
           <p className="mt-2 text-base leading-7 text-foreground">
             Registration number{" "}
-            <span className="font-semibold">{registrationNumber.trim()}</span>
+            <span className="font-semibold">
+              {complaint.registrationNumber}
+            </span>
           </p>
+          <p className="mt-1 text-base leading-7 text-foreground">
+            <span className="font-semibold">Current status:</span>{" "}
+            {complaint.status}
+          </p>
+          {complaint.department ? (
+            <p className="mt-1 text-base leading-7 text-foreground">
+              <span className="font-semibold">Department:</span>{" "}
+              {complaint.department}
+            </p>
+          ) : null}
+          {complaint.subject ? (
+            <p className="mt-1 text-base leading-7 text-foreground">
+              <span className="font-semibold">Summary:</span>{" "}
+              {complaint.subject}
+            </p>
+          ) : null}
+
           <ol className="mt-8 space-y-6">
-            <li>
-              <p className="font-semibold">Received</p>
-              <p className="mt-1 text-base leading-7 text-muted-foreground">
-                Waiting for an update
-              </p>
-            </li>
-            <li>
-              <p className="font-semibold">Being looked at</p>
-              <p className="mt-1 text-base leading-7 text-muted-foreground">
-                Waiting for an update
-              </p>
-            </li>
-            <li>
-              <p className="font-semibold">Reply</p>
-              <p className="mt-1 text-base leading-7 text-muted-foreground">
-                Waiting for an update
-              </p>
-            </li>
+            {complaint.history.map((entry) => (
+              <li key={String(entry._id)}>
+                <p className="font-semibold">{entry.status}</p>
+                {entry.note ? (
+                  <p className="mt-1 text-base leading-7 text-foreground">
+                    {entry.note}
+                  </p>
+                ) : (
+                  <p className="mt-1 text-base leading-7 text-muted-foreground">
+                    Waiting for an update
+                  </p>
+                )}
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {formatDate(entry.at)}
+                </p>
+              </li>
+            ))}
           </ol>
         </section>
       ) : null}
