@@ -16,8 +16,7 @@ export default function TrackComplaintPage() {
         Track a complaint
       </h1>
       <p className="mt-5 max-w-xl text-lg leading-8 text-foreground">
-        Enter the registration number you received when you filed the
-        complaint.
+        Enter the registration number you received when you filed the complaint.
       </p>
       <div className="mt-10">
         <TrackComplaintForm />
