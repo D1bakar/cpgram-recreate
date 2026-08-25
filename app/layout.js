@@ -55,7 +55,7 @@ export default async function RootLayout({ children }) {
             Skip to main content
           </a>
           <SiteHeader />
-          <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+          <div className="flex min-h-0 flex-1 flex-col page-enter">{children}</div>
           <SiteFooter />
         </NextIntlClientProvider>
       </body>

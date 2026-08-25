@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
 import { GrievanceTimeline } from "@/components/grievance-timeline";
-import { StatusTimeline } from "@/components/status-timeline";
 import { Button } from "@/components/ui/button";
 import {
   errorClassName,
@@ -21,14 +20,13 @@ function isValidRegistration(value) {
 function statusClass(status) {
   switch (status) {
     case "Under Review":
-      return "bg-clay/15 text-clay-deep";
+      return "text-[#1d70b8]";
     case "Resolved":
-      return "bg-oat-warm text-slate-dark";
+      return "text-[#00703c]";
     case "Rejected":
-      return "bg-destructive/15 text-destructive";
-    case "Received":
+      return "text-[#d4351c]";
     default:
-      return "bg-muted text-muted-foreground";
+      return "text-[#0b0c0c]";
   }
 }
 
@@ -210,75 +208,57 @@ export function TrackComplaintForm() {
       {complaint ? (
         <section
           aria-labelledby="status-heading"
-          className="mt-10 space-y-10 border-t border-border pt-10"
+          className="motion-safe:animate-reveal mt-10 border-t border-[#b1b4b6] pt-8"
         >
-          <div>
-            <h2 id="status-heading" className="text-[24px] font-bold">
-              {t("statusHeading")}
-            </h2>
-            <dl className="mt-6 space-y-3 text-base">
-              <div>
-                <dt className="font-semibold">{t("reference")}</dt>
-                <dd className="mt-1 font-mono">{complaint.registrationNumber}</dd>
-              </div>
-              <div>
-                <dt className="font-semibold">{t("currentStatus")}</dt>
-                <dd className="mt-1">
-                  <span
-                    className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-medium ${statusClass(
-                      complaint.status,
-                    )}`}
-                  >
-                    {statusLabel(complaint.status)}
-                  </span>
-                </dd>
-              </div>
-              {complaint.department ? (
-                <div>
-                  <dt className="font-semibold">{t("department")}</dt>
-                  <dd className="mt-1">{complaint.department}</dd>
-                </div>
-              ) : null}
-              {complaint.subject ? (
-                <div>
-                  <dt className="font-semibold">{t("subject")}</dt>
-                  <dd className="mt-1">{complaint.subject}</dd>
-                </div>
-              ) : null}
-              <div>
-                <dt className="font-semibold">{t("lastUpdated")}</dt>
-                <dd className="mt-1">
-                  {formatDate(complaint.updatedAt ?? complaint.createdAt)}
-                </dd>
-              </div>
-            </dl>
-          </div>
+          <h2 id="status-heading" className="text-[24px] font-bold">
+            {t("statusHeading")}
+          </h2>
 
-          <div>
-            <h3 className="text-[19px] font-bold">
-              {t("latestResponse")}
-            </h3>
-            <p className="mt-3 text-base leading-7 text-foreground">
-              {latestNote || t("noResponse")}
-            </p>
-          </div>
-
-          <div>
-            <h3 className="mb-6 text-[19px] font-bold">
-              {t("timeline")}
-            </h3>
-            <StatusTimeline complaint={complaint} />
-            <div className="mt-8">
-              <GrievanceTimeline history={complaint.history} locale={locale} />
+          <dl className="mt-6">
+            <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[220px_1fr] sm:gap-4">
+              <dt className="font-bold">{t("reference")}</dt>
+              <dd className="mt-1 font-mono sm:mt-0">{complaint.registrationNumber}</dd>
             </div>
+            <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[220px_1fr] sm:gap-4">
+              <dt className="font-bold">{t("currentStatus")}</dt>
+              <dd className={`mt-1 font-bold sm:mt-0 ${statusClass(complaint.status)}`}>
+                {statusLabel(complaint.status)}
+              </dd>
+            </div>
+            {complaint.department ? (
+              <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[220px_1fr] sm:gap-4">
+                <dt className="font-bold">{t("department")}</dt>
+                <dd className="mt-1 sm:mt-0">{complaint.department}</dd>
+              </div>
+            ) : null}
+            {complaint.subject ? (
+              <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[220px_1fr] sm:gap-4">
+                <dt className="font-bold">{t("subject")}</dt>
+                <dd className="mt-1 sm:mt-0">{complaint.subject}</dd>
+              </div>
+            ) : null}
+            <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[220px_1fr] sm:gap-4">
+              <dt className="font-bold">{t("lastUpdated")}</dt>
+              <dd className="mt-1 sm:mt-0">
+                {formatDate(complaint.updatedAt ?? complaint.createdAt)}
+              </dd>
+            </div>
+          </dl>
+
+          <h3 className="mt-10 text-[19px] font-bold">{t("latestResponse")}</h3>
+          <p className="mt-3 text-[19px] leading-[1.315]">
+            {latestNote || t("noResponse")}
+          </p>
+
+          <h3 className="mt-10 text-[19px] font-bold">{t("timeline")}</h3>
+          <div className="mt-5">
+            <GrievanceTimeline history={complaint.history} locale={locale} />
           </div>
 
-          <div className="border border-[#b1b4b6] bg-card p-6">
-            <h3 className="text-[19px] font-bold">{t("nextAction")}</h3>
-            <p className="mt-3 text-base leading-7 text-foreground">
-              {nextAction(complaint.status)}
-            </p>
-          </div>
+          <h3 className="mt-10 text-[19px] font-bold">{t("nextAction")}</h3>
+          <p className="mt-3 text-[19px] leading-[1.315]">
+            {nextAction(complaint.status)}
+          </p>
         </section>
       ) : null}
     </div>
