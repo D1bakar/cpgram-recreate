@@ -1,0 +1,35 @@
+{
+  "nav": {
+    "fileComplaint": "File a complaint",
+    "trackStatus": "Track a complaint",
+    "admin": "Admin"
+  },
+  "hero": {
+    "eyebrow": "Public Grievance Portal",
+    "title": "Lodge a complaint about a government service",
+    "subtitle": "Tell a government department about a problem with a public service, then track its progress with the registration number you receive.",
+    "cta": "File a complaint",
+    "track": "Track a complaint"
+  },
+  "steps": {
+    "eyebrow": "How it works",
+    "title": "Three steps to redress",
+    "step1_title": "File your complaint",
+    "step1_desc": "Tell us what went wrong and which department it is about.",
+    "step2_title": "Get a registration number",
+    "step2_desc": "Keep this number safe. You will need it to track your complaint.",
+    "step3_title": "Track the progress",
+    "step3_desc": "Check what the department has done and whether they have replied."
+  },
+  "notes": {
+    "eyebrow": "Important",
+    "title": "Before you begin",
+    "free": "This service is free of charge.",
+    "contact": "You will need a mobile number or email address to file a complaint.",
+    "track": "You can track a complaint using your registration number.",
+    "department": "If you are not sure which department to choose, you can still file the complaint and it will be sent to the right office."
+  },
+  "footer": {
+    "about": "Centralised Public Grievance Redress and Monitoring System — Department of Administrative Reforms and Public Grievances."
+  }
+}

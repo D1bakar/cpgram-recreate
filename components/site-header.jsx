@@ -4,17 +4,21 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/theme-toggle";
-
-const links = [
-  { href: "/file-complaint", label: "File a complaint" },
-  { href: "/track", label: "Track a complaint" },
-  { href: "/admin", label: "Admin" },
-];
+import { useLocale, useTranslations } from "next-intl";
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const locale = useLocale();
+  const t = useTranslations("nav");
   const [open, setOpen] = useState(false);
+
+  const links = [
+    { href: "/file-complaint", label: t("fileComplaint") },
+    { href: "/track", label: t("trackStatus") },
+    { href: "/admin", label: t("admin") },
+  ];
 
   return (
     <header
@@ -35,7 +39,7 @@ export function SiteHeader() {
 
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
         <Link
-          href="/"
+          href={`/${locale}`}
           className="rounded-sm text-xl font-semibold tracking-tight text-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
         >
           CPGRAMS
@@ -66,6 +70,7 @@ export function SiteHeader() {
               );
             })}
           </nav>
+          <LanguageSwitcher />
           <ThemeToggle />
 
           <button
