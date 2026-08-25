@@ -15,8 +15,8 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
 
   const links = [
-    { href: "/file-complaint", label: t("fileComplaint") },
-    { href: "/track", label: t("trackStatus") },
+    { href: `/${locale}/file-complaint`, label: t("fileComplaint") },
+    { href: `/${locale}/track`, label: t("trackStatus") },
     { href: "/admin", label: t("admin") },
   ];
 
@@ -27,7 +27,7 @@ export function SiteHeader() {
       }`}
     >
       <div className="border-b border-border">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-2 sm:px-6">
+        <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between px-4 py-2 sm:px-6">
           <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
             Government of India
           </span>
@@ -37,10 +37,10 @@ export function SiteHeader() {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+      <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
         <Link
           href={`/${locale}`}
-          className="rounded-sm text-xl font-semibold tracking-tight text-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
+          className="rounded-sm font-serif text-xl font-medium tracking-tight text-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
         >
           CPGRAMS
         </Link>
@@ -53,7 +53,8 @@ export function SiteHeader() {
             {links.map((link) => {
               const isCurrent =
                 pathname === link.href ||
-                (link.href !== "/" && pathname.startsWith(link.href));
+                (link.href !== `/${locale}` &&
+                  pathname.startsWith(link.href));
               return (
                 <Link
                   key={link.href}
@@ -109,12 +110,12 @@ export function SiteHeader() {
       >
         <nav
           aria-label="Mobile"
-          className="mx-auto flex w-full max-w-5xl flex-col gap-1 px-4 py-3 sm:px-6"
+          className="mx-auto flex w-full max-w-[1280px] flex-col gap-1 px-4 py-3 sm:px-6"
         >
           {links.map((link) => {
             const isCurrent =
               pathname === link.href ||
-              (link.href !== "/" && pathname.startsWith(link.href));
+              (link.href !== `/${locale}` && pathname.startsWith(link.href));
             return (
               <Link
                 key={link.href}

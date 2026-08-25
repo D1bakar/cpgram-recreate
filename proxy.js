@@ -9,6 +9,10 @@ const handleI18n = createMiddleware(routing);
 export async function proxy(request) {
   const { pathname } = request.nextUrl;
 
+  if (pathname === "/file-complaint" || pathname === "/track") {
+    return NextResponse.redirect(new URL(`/en${pathname}`, request.url));
+  }
+
   if (pathname.startsWith("/admin")) {
     const token = request.cookies.get(SESSION_COOKIE)?.value;
     const session = await verifySession(token);
@@ -35,5 +39,12 @@ export async function proxy(request) {
 }
 
 export const config = {
-  matcher: ["/", "/(en|hi)/:path*", "/admin/:path*", "/api/:path*"],
+  matcher: [
+    "/",
+    "/(en|hi)/:path*",
+    "/file-complaint",
+    "/track",
+    "/admin/:path*",
+    "/api/:path*",
+  ],
 };
