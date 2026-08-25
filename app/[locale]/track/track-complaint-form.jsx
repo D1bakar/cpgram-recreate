@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
 import { GrievanceTimeline } from "@/components/grievance-timeline";
+import { StatusTimeline } from "@/components/status-timeline";
 import { Button } from "@/components/ui/button";
 import {
   errorClassName,
@@ -266,7 +267,10 @@ export function TrackComplaintForm() {
             <h3 className="mb-6 font-serif text-lg font-medium">
               {t("timeline")}
             </h3>
-            <GrievanceTimeline history={complaint.history} locale={locale} />
+            <StatusTimeline complaint={complaint} />
+            <div className="mt-8">
+              <GrievanceTimeline history={complaint.history} locale={locale} />
+            </div>
           </div>
 
           <div className="rounded-3xl border border-border bg-card p-6">
