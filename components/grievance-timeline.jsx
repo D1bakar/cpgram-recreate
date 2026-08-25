@@ -2,45 +2,38 @@
 
 import { useLocale, useTranslations } from "next-intl";
 
-function statusClass(status) {
-  switch (status) {
-    case "Under Review":
-      return "bg-clay/15 text-clay-deep";
-    case "Resolved":
-      return "bg-oat-warm text-slate-dark";
-    case "Rejected":
-      return "bg-destructive/15 text-destructive";
-    case "Received":
-    default:
-      return "bg-muted text-muted-foreground";
+function collapseHistory(history = []) {
+  const items = [];
+  for (const entry of history) {
+    const prev = items[items.length - 1];
+    const sameStatus = prev && prev.status === entry.status;
+    const noNewNote = !entry.note?.trim();
+    if (sameStatus && noNewNote) continue;
+    items.push(entry);
   }
+  return items;
 }
 
 export function GrievanceTimeline({ history = [], locale }) {
   const t = useTranslations("track");
   const activeLocale = useLocale();
   const dateLocale = locale || activeLocale;
+  const items = collapseHistory(history);
 
   function formatDate(value) {
     return new Date(value).toLocaleString(
       dateLocale === "hi" ? "hi-IN" : "en-IN",
-      {
-        dateStyle: "medium",
-        timeStyle: "short",
-      },
+      { dateStyle: "medium", timeStyle: "short" },
     );
   }
 
-  if (!history.length) {
-    return (
-      <p className="text-base text-muted-foreground">{t("waiting")}</p>
-    );
+  if (!items.length) {
+    return <p className="text-[19px] text-[#505a5f]">{t("waiting")}</p>;
   }
 
   return (
-    <ol className="relative space-y-0 border-l-2 border-border pl-6">
-      {history.map((entry, index) => {
-        const isLast = index === history.length - 1;
+    <ol className="border-l-[4px] border-[#1b4332] pl-5">
+      {items.map((entry, index) => {
         const label =
           {
             Received: t("statuses.Received"),
@@ -50,32 +43,17 @@ export function GrievanceTimeline({ history = [], locale }) {
           }[entry.status] ?? entry.status;
 
         return (
-          <li key={String(entry._id ?? `${entry.status}-${entry.at}`)} className="relative pb-8 last:pb-0">
-            <span
-              aria-hidden="true"
-              className={`absolute -left-[1.55rem] top-1 size-3 rounded-full border-2 border-background ${
-                isLast ? "bg-clay" : "bg-cloud-dark"
-              }`}
-            />
-            <p
-              className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-medium ${statusClass(
-                entry.status,
-              )}`}
-            >
-              {label}
-            </p>
-            {entry.note ? (
-              <p className="mt-2 text-base leading-7 text-foreground">
+          <li
+            key={String(entry._id ?? `${entry.status}-${entry.at}-${index}`)}
+            className="relative pb-8 last:pb-0"
+          >
+            <h3 className="text-[19px] font-bold text-[#0b0c0c]">{label}</h3>
+            {entry.note?.trim() ? (
+              <p className="mt-2 text-[19px] leading-[1.315] text-[#0b0c0c]">
                 {entry.note}
               </p>
-            ) : (
-              <p className="mt-2 text-base leading-7 text-muted-foreground">
-                {t("waiting")}
-              </p>
-            )}
-            <p className="mt-1 font-mono text-sm text-muted-foreground">
-              {formatDate(entry.at)}
-            </p>
+            ) : null}
+            <p className="mt-1 text-[16px] text-[#505a5f]">{formatDate(entry.at)}</p>
           </li>
         );
       })}

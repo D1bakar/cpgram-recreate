@@ -60,7 +60,7 @@ export function SiteHeader() {
       </div>
 
       {open ? (
-        <div id="govuk-menu" className="border-b-[10px] border-[#1d70b8] bg-white text-[#0b0c0c]">
+        <div id="govuk-menu" className="motion-safe:animate-reveal border-b border-[#c5d5cc] bg-white text-[#0b0c0c]">
           <nav
             aria-label={t("menu")}
             className="mx-auto grid w-full max-w-[960px] gap-8 px-[15px] py-8 md:grid-cols-2 md:px-[30px]"

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { HomepageTrack } from "@/components/homepage-track";
-import { Button } from "@/components/ui/button";
 
 export default async function Home({ params }) {
   const { locale } = await params;
@@ -28,15 +27,13 @@ export default async function Home({ params }) {
         <p className="mt-5 max-w-[660px] text-[19px] leading-[1.315] text-[#0b0c0c] md:text-[24px] md:leading-[1.25]">
           {t("hero.subtitle")}
         </p>
-        <div className="mt-6">
-          <Button
-            size="lg"
-            nativeButton={false}
-            render={<Link href={`/${locale}/file-complaint`} />}
-            className="h-auto px-[10px] py-[8px] text-[19px]"
+        <div className="mt-8">
+          <Link
+            href={`/${locale}/file-complaint`}
+            className="inline-flex items-center justify-center bg-[#00703c] px-5 py-3 text-[19px] font-bold text-white outline-none hover:bg-[#005a30] focus-visible:ring-[3px] focus-visible:ring-[#ffdd00]"
           >
-            {t("hero.cta")}
-          </Button>
+            {t("nav.fileComplaint")}
+          </Link>
         </div>
         <HomepageTrack />
 
