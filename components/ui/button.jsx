@@ -4,19 +4,19 @@ import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-base font-bold whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 active:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/30 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-none border border-transparent bg-clip-padding text-[19px] font-bold whitespace-nowrap transition-colors outline-none select-none focus-visible:ring-[3px] focus-visible:ring-[#ffdd00] disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "bg-[#00703c] text-white hover:bg-[#005a30]",
         outline:
-          "border border-border bg-transparent text-foreground hover:bg-muted aria-expanded:bg-muted",
+          "border-[3px] border-[#0b0c0c] bg-transparent text-[#0b0c0c] hover:bg-[#f3f2f1] dark:border-white dark:text-white dark:hover:bg-white/10",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-muted aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "bg-[#f3f2f1] text-[#0b0c0c] hover:bg-[#e5e4e3] dark:bg-secondary dark:text-secondary-foreground",
         ghost: "text-foreground hover:bg-muted aria-expanded:bg-muted",
         destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20",
-        link: "text-clay underline-offset-4 hover:underline",
+          "bg-[#d4351c] text-white hover:bg-[#aa2a16]",
+        link: "text-[#1d70b8] underline-offset-4 hover:text-[#003078] hover:underline",
       },
       size: {
         default:

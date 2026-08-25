@@ -1,14 +1,14 @@
 export function GoiEmblem({
-  className = "h-14 w-auto",
+  className = "h-10 w-auto",
   alt = "State Emblem of India",
 }) {
   return (
     <img
       src="/emblem.svg"
       alt={alt}
-      width={56}
-      height={67}
-      className={className}
+      width={64}
+      height={76}
+      className={`${className} bg-white object-contain`}
     />
   );
 }

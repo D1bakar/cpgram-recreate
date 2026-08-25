@@ -9,7 +9,7 @@ import { SiteHeader } from "@/components/site-header";
 
 import "./globals.css";
 
-const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';localStorage.setItem('theme',t);}document.cookie='theme='+t+';path=/;max-age=31536000;SameSite=Lax';if(t==='dark'){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}}catch(e){}})();`;
+const themeScript = `(function(){try{if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}}catch(e){}})();`;
 
 const notoSans = Noto_Sans({
   variable: "--font-source-sans",
@@ -41,7 +41,7 @@ export default async function RootLayout({ children }) {
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${notoSans.variable} ${notoSans.className} ${plexMono.variable} h-full antialiased${isDark ? " dark" : ""}`}
+      className={`${notoSans.variable} ${plexMono.variable} h-full${isDark ? " dark" : ""}`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <Script id="theme-bootstrap" strategy="beforeInteractive">
@@ -50,7 +50,7 @@ export default async function RootLayout({ children }) {
         <NextIntlClientProvider messages={messages}>
           <a
             href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-primary focus:px-4 focus:py-3 focus:text-sm focus:font-medium focus:text-primary-foreground focus:outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-[#ffdd00] focus:px-4 focus:py-3 focus:text-[19px] focus:font-bold focus:text-[#0b0c0c] focus:outline-none"
           >
             Skip to main content
           </a>

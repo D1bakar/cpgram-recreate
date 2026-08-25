@@ -3,7 +3,7 @@
 import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ inverted = false }) {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
@@ -19,23 +19,18 @@ export default function LanguageSwitcher() {
     router.refresh();
   };
 
+  const other = locale === "en" ? "hi" : "en";
+  const label = other === "hi" ? "हिन्दी" : "English";
+
   return (
-    <div className="flex items-center gap-1" role="group" aria-label="Language">
-      {["en", "hi"].map((code) => (
-        <button
-          key={code}
-          type="button"
-          onClick={() => changeLanguage(code)}
-          aria-pressed={locale === code}
-          className={`rounded-full px-3 py-2 text-base font-bold outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring ${
-            locale === code
-              ? "bg-muted text-foreground"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground"
-          }`}
-        >
-          {code === "en" ? "EN" : "हि"}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      onClick={() => changeLanguage(other)}
+      className={`text-[16px] font-bold underline underline-offset-4 outline-none focus-visible:ring-[3px] focus-visible:ring-[#ffdd00] ${
+        inverted ? "text-white decoration-white" : "text-[#1d70b8]"
+      }`}
+    >
+      {label}
+    </button>
   );
 }
