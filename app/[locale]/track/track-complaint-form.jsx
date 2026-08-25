@@ -147,7 +147,7 @@ export function TrackComplaintForm() {
           <div
             id={errorSummaryId}
             tabIndex={-1}
-            className="mb-8 rounded-3xl border border-destructive/40 bg-card px-5 py-5 outline-none"
+            className="mb-8 border-l-8 border-[#d4351c] bg-[#f3f2f1] px-5 py-5 outline-none"
           >
             <h2 className="text-lg font-semibold text-destructive">
               {t("errorTitle")}
@@ -213,7 +213,7 @@ export function TrackComplaintForm() {
           className="mt-10 space-y-10 border-t border-border pt-10"
         >
           <div>
-            <h2 id="status-heading" className="text-2xl font-extrabold">
+            <h2 id="status-heading" className="text-[24px] font-bold">
               {t("statusHeading")}
             </h2>
             <dl className="mt-6 space-y-3 text-base">
@@ -255,7 +255,7 @@ export function TrackComplaintForm() {
           </div>
 
           <div>
-            <h3 className="text-xl font-extrabold">
+            <h3 className="text-[19px] font-bold">
               {t("latestResponse")}
             </h3>
             <p className="mt-3 text-base leading-7 text-foreground">
@@ -264,7 +264,7 @@ export function TrackComplaintForm() {
           </div>
 
           <div>
-            <h3 className="mb-6 text-xl font-extrabold">
+            <h3 className="mb-6 text-[19px] font-bold">
               {t("timeline")}
             </h3>
             <StatusTimeline complaint={complaint} />
@@ -273,8 +273,8 @@ export function TrackComplaintForm() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-border bg-card p-6">
-            <h3 className="text-xl font-extrabold">{t("nextAction")}</h3>
+          <div className="border border-[#b1b4b6] bg-card p-6">
+            <h3 className="text-[19px] font-bold">{t("nextAction")}</h3>
             <p className="mt-3 text-base leading-7 text-foreground">
               {nextAction(complaint.status)}
             </p>

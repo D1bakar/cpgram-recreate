@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export function ThemeToggle() {
+export function ThemeToggle({ inverted = false }) {
   const [light, setLight] = useState(true);
 
   useEffect(() => {
@@ -26,7 +26,11 @@ export function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label="Toggle colour theme"
-      className="rounded-xl border border-border px-3 py-2 text-base font-bold text-foreground outline-none transition-colors hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring"
+      className={`px-3 py-2 text-[16px] font-bold outline-none focus-visible:ring-[3px] focus-visible:ring-[#ffdd00] ${
+        inverted
+          ? "border border-white text-white hover:bg-white hover:text-[#0b0c0c]"
+          : "border border-border text-foreground hover:bg-muted"
+      }`}
     >
       {light ? "Dark" : "Light"}
     </button>

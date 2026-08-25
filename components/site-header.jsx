@@ -3,11 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 
 import { GoiEmblem } from "@/components/goi-emblem";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { useLocale, useTranslations } from "next-intl";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -19,137 +18,86 @@ export function SiteHeader() {
   const links = [
     { href: `/${locale}/file-complaint`, label: t("fileComplaint") },
     { href: `/${locale}/track`, label: t("trackStatus") },
+    { href: `/${locale}#how-it-works`, label: t("howItWorks") },
+    { href: `/${locale}#what-you-can-complain-about`, label: t("whatYouCan") },
     { href: "/admin", label: t("admin") },
   ];
 
   return (
-    <header
-      className={`sticky top-0 z-50 border-b border-border backdrop-blur transition-colors duration-300 ${
-        open ? "bg-background/90" : "bg-background/90"
-      }`}
-    >
-      <div className="flex h-1.5 w-full" aria-hidden="true">
-        <span className="flex-1 bg-[#FF9933]" />
-        <span className="flex-1 bg-white" />
-        <span className="flex-1 bg-[#138808]" />
-      </div>
-
-      <div className="border-b border-border">
-        <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between px-4 py-2 sm:px-6">
-          <span className="text-sm font-semibold tracking-wide text-foreground">
-            {brand("goi")}
-          </span>
-          <span className="hidden text-sm font-medium text-muted-foreground sm:block">
-            {brand("official")}
-          </span>
-        </div>
-      </div>
-
-      <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
+    <header className="border-b border-[#c5d5cc] bg-[#eaf2ee] text-[#1b4332]">
+      <div className="mx-auto flex w-full max-w-[960px] items-center justify-between gap-4 px-[15px] py-3 md:px-[30px]">
         <Link
           href={`/${locale}`}
-          className="flex min-w-0 items-center gap-3 rounded-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
+          className="flex items-center gap-3 outline-none focus-visible:ring-[3px] focus-visible:ring-[#ffdd00]"
         >
-          <GoiEmblem className="h-14 w-auto shrink-0 sm:h-16" alt={brand("emblemAlt")} />
-          <span className="min-w-0">
-            <span className="block text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
-              CPGRAMS
-            </span>
-            <span className="mt-0.5 block truncate text-sm font-semibold text-muted-foreground sm:text-base">
-              {brand("product")}
-            </span>
+          <span className="inline-flex items-center justify-center bg-white p-1.5 shadow-sm">
+            <GoiEmblem className="h-14 w-auto sm:h-16" alt={brand("emblemAlt")} />
+          </span>
+          <span className="font-bold text-[24px] leading-none tracking-tight text-[#1b4332] sm:text-[30px]">
+            CPGRAMS
           </span>
         </Link>
 
-        <div className="flex items-center gap-2">
-          <nav
-            aria-label="Primary"
-            className="hidden flex-wrap items-center gap-1 md:flex"
-          >
-            {links.map((link) => {
-              const isCurrent =
-                pathname === link.href ||
-                (link.href !== `/${locale}` &&
-                  pathname.startsWith(link.href));
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  aria-current={isCurrent ? "page" : undefined}
-                  className={`rounded-full px-4 py-2 text-base font-bold transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring ${
-                    isCurrent
-                      ? "bg-muted text-foreground"
-                      : "text-foreground hover:bg-muted"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
+        <div className="flex items-center gap-3">
           <LanguageSwitcher />
-          <ThemeToggle />
-
           <button
             type="button"
-            aria-label="Toggle menu"
             aria-expanded={open}
+            aria-controls="govuk-menu"
             onClick={() => setOpen((v) => !v)}
-            className="relative z-50 flex h-11 w-11 items-center justify-center rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring md:hidden"
+            className={`inline-flex items-center gap-2 border border-[#1b4332] px-3 py-2 text-[19px] font-bold outline-none focus-visible:ring-[3px] focus-visible:ring-[#ffdd00] ${
+              open ? "relative z-20 border-b-0 bg-white text-[#1b4332]" : "bg-transparent text-[#1b4332]"
+            }`}
           >
-            <span className="sr-only">Menu</span>
-            <span className="relative block h-4 w-5">
-              <span
-                className={`absolute left-0 top-0 h-0.5 w-5 bg-foreground transition-all duration-300 ${
-                  open ? "top-1/2 -translate-y-1/2 rotate-45" : ""
-                }`}
-              />
-              <span
-                className={`absolute left-0 top-1/2 h-0.5 w-5 -translate-y-1/2 bg-foreground transition-all duration-300 ${
-                  open ? "opacity-0" : "opacity-100"
-                }`}
-              />
-              <span
-                className={`absolute bottom-0 left-0 h-0.5 w-5 bg-foreground transition-all duration-300 ${
-                  open ? "bottom-1/2 translate-y-1/2 -rotate-45" : ""
-                }`}
-              />
+            {t("menu")}
+            <span className="relative block h-3.5 w-[18px]" aria-hidden="true">
+              <span className="absolute left-0 top-0 h-[2px] w-full bg-[#1b4332]" />
+              <span className="absolute left-0 top-[6px] h-[2px] w-full bg-[#1b4332]" />
+              <span className="absolute left-0 top-[12px] h-[2px] w-full bg-[#1b4332]" />
             </span>
           </button>
         </div>
       </div>
 
-      <div
-        className={`overflow-hidden border-border transition-all duration-300 md:hidden ${
-          open ? "max-h-64 border-t" : "max-h-0"
-        }`}
-      >
-        <nav
-          aria-label="Mobile"
-          className="mx-auto flex w-full max-w-[1280px] flex-col gap-1 px-4 py-3 sm:px-6"
-        >
-          {links.map((link) => {
-            const isCurrent =
-              pathname === link.href ||
-              (link.href !== `/${locale}` && pathname.startsWith(link.href));
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                aria-current={isCurrent ? "page" : undefined}
-                className={`rounded-md px-4 py-3 text-lg font-bold transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring ${
-                  isCurrent
-                    ? "bg-muted text-foreground"
-                    : "text-foreground hover:bg-muted"
-                }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+      {open ? (
+        <div id="govuk-menu" className="border-b-[10px] border-[#1d70b8] bg-white text-[#0b0c0c]">
+          <nav
+            aria-label={t("menu")}
+            className="mx-auto grid w-full max-w-[960px] gap-8 px-[15px] py-8 md:grid-cols-2 md:px-[30px]"
+          >
+            <div>
+              <h2 className="mb-4 text-[24px] font-bold">{t("services")}</h2>
+              <ul className="space-y-3">
+                {links.map((link) => {
+                  const isCurrent =
+                    pathname === link.href ||
+                    (link.href !== `/${locale}` &&
+                      !link.href.includes("#") &&
+                      pathname.startsWith(link.href));
+                  return (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        onClick={() => setOpen(false)}
+                        aria-current={isCurrent ? "page" : undefined}
+                        className="text-[19px] font-bold text-[#1d70b8] underline decoration-[#1d70b8] underline-offset-4 outline-none hover:text-[#003078] focus-visible:bg-[#ffdd00] focus-visible:text-[#0b0c0c]"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            <div>
+              <h2 className="mb-4 text-[24px] font-bold">{brand("goi")}</h2>
+              <p className="text-[19px] leading-[1.315] text-[#0b0c0c]">
+                {brand("product")}
+              </p>
+            </div>
+          </nav>
+        </div>
+      ) : null}
     </header>
   );
 }

@@ -205,8 +205,8 @@ export function FileComplaintForm() {
     return (
       <div>
         <p className="mb-6 font-mono text-sm text-muted-foreground">{stepLabel}</p>
-        <div className="rounded-3xl border border-border bg-card p-6 sm:p-8">
-          <h2 className="text-2xl font-extrabold">{t("successTitle")}</h2>
+        <div className="border border-[#b1b4b6] bg-card p-6">
+          <h2 className="text-[24px] font-bold">{t("successTitle")}</h2>
           <p className="mt-2 text-base leading-7 text-foreground">
             {t("successIntro")}
           </p>
@@ -250,8 +250,8 @@ export function FileComplaintForm() {
     return (
       <div>
         <p className="mb-6 font-mono text-sm text-muted-foreground">{stepLabel}</p>
-        <div className="rounded-3xl border border-border bg-card p-6 sm:p-8">
-          <h2 className="text-2xl font-extrabold">{t("reviewTitle")}</h2>
+        <div className="border border-[#b1b4b6] bg-card p-6">
+          <h2 className="text-[24px] font-bold">{t("reviewTitle")}</h2>
           <p className="mt-2 text-base leading-7 text-foreground">
             {t("reviewIntro")}
           </p>
@@ -320,7 +320,7 @@ export function FileComplaintForm() {
           <div
             id={errorSummaryId}
             tabIndex={-1}
-            className="mb-8 rounded-3xl border border-destructive/40 bg-card px-5 py-5 outline-none"
+            className="mb-8 border-l-8 border-[#d4351c] bg-[#f3f2f1] px-5 py-5 outline-none"
           >
             <h2 className="text-lg font-semibold text-destructive">
               {t("errorTitle")}

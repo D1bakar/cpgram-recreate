@@ -1,6 +1,5 @@
+import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-
-import { Eyebrow } from "@/components/eyebrow";
 
 import { FileComplaintForm } from "./file-complaint-form";
 
@@ -17,20 +16,26 @@ export default async function FileComplaintPage({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("fileComplaint");
+  const nav = await getTranslations("nav");
 
   return (
     <main
       id="main-content"
-      className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6 sm:py-14"
+      className="mx-auto w-full max-w-[960px] flex-1 px-[15px] py-10 md:px-[30px]"
     >
-      <Eyebrow>{t("eyebrow")}</Eyebrow>
-      <h1 className="mt-3 max-w-2xl text-4xl font-extrabold tracking-tight text-pretty sm:text-5xl">
+      <Link
+        href={`/${locale}`}
+        className="inline-block text-[16px] text-[#0b0c0c] underline underline-offset-4 hover:text-[#1d70b8]"
+      >
+        {nav("back")}
+      </Link>
+      <h1 className="mt-6 max-w-[660px] text-[32px] font-bold leading-tight md:text-[48px]">
         {t("title")}
       </h1>
-      <p className="mt-5 max-w-2xl text-xl font-medium leading-8 text-foreground">
+      <p className="mt-5 max-w-[660px] text-[19px] leading-[1.315]">
         {t("intro")}
       </p>
-      <div className="mt-10">
+      <div className="mt-8">
         <FileComplaintForm />
       </div>
     </main>

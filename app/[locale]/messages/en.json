@@ -1,7 +1,6 @@
 {
   "brand": {
     "goi": "Government of India",
-    "official": "An independent recreation of the public grievance portal",
     "product": "Public Grievance Redressal",
     "emblemAlt": "State Emblem of India"
   },
@@ -9,14 +8,27 @@
     "fileComplaint": "File a complaint",
     "trackStatus": "Track a complaint",
     "admin": "Admin",
-    "home": "Home"
+    "home": "Home",
+    "menu": "Menu",
+    "back": "Back",
+    "howItWorks": "How it works",
+    "whatYouCan": "What you can complain about",
+    "services": "Services and information"
   },
   "hero": {
-    "eyebrow": "Public Grievance Portal",
-    "title": "Lodge a complaint about a government service",
-    "subtitle": "Tell a government department about a problem with a public service, then track its progress with the registration number you receive.",
+    "title": "File or track a government complaint",
+    "subtitle": "Use this service to tell a government department about a problem with a public service.",
     "cta": "File a complaint",
-    "track": "Track a complaint"
+    "track": "Track",
+    "trackLabel": "Track a complaint",
+    "trackHint": "Enter your registration number, for example CPG-2026-AB12CD"
+  },
+  "popular": {
+    "title": "Popular on CPGRAMS",
+    "file": "File a complaint",
+    "track": "Track a complaint",
+    "how": "How CPGRAMS works",
+    "scope": "What you can complain about"
   },
   "steps": {
     "eyebrow": "How it works",
@@ -72,7 +84,8 @@
   },
   "footer": {
     "about": "Centralised Public Grievance Redress and Monitoring System — Department of Administrative Reforms and Public Grievances.",
-    "help": "Need help? Call 112 only for emergencies. For this portal, use Track a complaint with your reference number."
+    "help": "Do not use this service in an emergency. Call 112.",
+    "support": "Support links"
   },
   "fileComplaint": {
     "eyebrow": "File a complaint",
