@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 
+import { StatusTimeline } from "@/components/status-timeline";
 import { Button } from "@/components/ui/button";
 import {
   errorClassName,
@@ -22,7 +23,6 @@ function statusClass(status) {
       return "bg-[#22c55e]/10 text-[#22c55e]";
     case "Rejected":
       return "bg-[#ef4444]/10 text-[#ef4444]";
-    case "Received":
     default:
       return "bg-[#6b7280]/10 text-[#6b7280]";
   }
@@ -35,13 +35,6 @@ export function TrackComplaintForm() {
   const [checked, setChecked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [complaint, setComplaint] = useState(null);
-
-  function formatDate(value) {
-    return new Date(value).toLocaleString("en-IN", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -198,31 +191,9 @@ export function TrackComplaintForm() {
             </p>
           ) : null}
 
-          <ol className="mt-8 space-y-6">
-            {complaint.history.map((entry) => (
-              <li key={String(entry._id)}>
-                <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass(
-                    entry.status,
-                  )}`}
-                >
-                  {entry.status}
-                </span>
-                {entry.note ? (
-                  <p className="mt-1 text-base leading-7 text-foreground">
-                    {entry.note}
-                  </p>
-                ) : (
-                  <p className="mt-1 text-base leading-7 text-muted-foreground">
-                    Waiting for an update
-                  </p>
-                )}
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {formatDate(entry.at)}
-                </p>
-              </li>
-            ))}
-          </ol>
+          <div className="mt-8">
+            <StatusTimeline complaint={complaint} />
+          </div>
         </section>
       ) : null}
     </div>

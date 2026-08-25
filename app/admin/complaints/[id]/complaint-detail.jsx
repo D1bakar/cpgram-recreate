@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { StatusTimeline } from "@/components/status-timeline";
 import { Button } from "@/components/ui/button";
+
 import { adminFetch } from "@/lib/admin-fetch";
 
 const STATUSES = ["Received", "Under Review", "Resolved", "Rejected"];
@@ -143,22 +145,11 @@ export function ComplaintDetail({ complaintId }) {
         aria-labelledby="history-heading"
       >
         <h2 id="history-heading" className="text-xl font-semibold">
-          Status history
+          Status timeline
         </h2>
-        <ul className="mt-4 space-y-3 text-sm">
-          {complaint.history.map((entry) => (
-            <li
-              key={String(entry._id)}
-              className="border-l-2 border-border pl-4"
-            >
-              <p className="font-medium">{entry.status}</p>
-              {entry.note ? (
-                <p className="text-foreground">{entry.note}</p>
-              ) : null}
-              <p className="text-muted-foreground">{formatDate(entry.at)}</p>
-            </li>
-          ))}
-        </ul>
+        <div className="mt-4">
+          <StatusTimeline complaint={complaint} />
+        </div>
       </section>
 
       <section
