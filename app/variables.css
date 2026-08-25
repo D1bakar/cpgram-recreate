@@ -13,8 +13,8 @@
   --color-clay-deep: #c6613f;
 
   /* Typography — Font Families */
-  --font-anthropic-serif: var(--font-source-serif), ui-serif, Georgia, Cambria,
-    "Times New Roman", Times, serif;
+  --font-anthropic-serif: var(--font-source-sans), ui-sans-serif, system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-anthropic-sans: var(--font-source-sans), ui-sans-serif, system-ui,
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-anthropic-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular,

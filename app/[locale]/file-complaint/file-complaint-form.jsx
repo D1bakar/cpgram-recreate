@@ -206,7 +206,7 @@ export function FileComplaintForm() {
       <div>
         <p className="mb-6 font-mono text-sm text-muted-foreground">{stepLabel}</p>
         <div className="rounded-3xl border border-border bg-card p-6 sm:p-8">
-          <h2 className="font-serif text-xl font-medium">{t("successTitle")}</h2>
+          <h2 className="text-2xl font-extrabold">{t("successTitle")}</h2>
           <p className="mt-2 text-base leading-7 text-foreground">
             {t("successIntro")}
           </p>
@@ -251,7 +251,7 @@ export function FileComplaintForm() {
       <div>
         <p className="mb-6 font-mono text-sm text-muted-foreground">{stepLabel}</p>
         <div className="rounded-3xl border border-border bg-card p-6 sm:p-8">
-          <h2 className="font-serif text-xl font-medium">{t("reviewTitle")}</h2>
+          <h2 className="text-2xl font-extrabold">{t("reviewTitle")}</h2>
           <p className="mt-2 text-base leading-7 text-foreground">
             {t("reviewIntro")}
           </p>

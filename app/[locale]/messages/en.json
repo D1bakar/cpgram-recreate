@@ -1,4 +1,10 @@
 {
+  "brand": {
+    "goi": "Government of India",
+    "official": "An independent recreation of the public grievance portal",
+    "product": "Public Grievance Redressal",
+    "emblemAlt": "State Emblem of India"
+  },
   "nav": {
     "fileComplaint": "File a complaint",
     "trackStatus": "Track a complaint",

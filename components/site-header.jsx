@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { GoiEmblem } from "@/components/goi-emblem";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useLocale, useTranslations } from "next-intl";
@@ -12,6 +13,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations("nav");
+  const brand = useTranslations("brand");
   const [open, setOpen] = useState(false);
 
   const links = [
@@ -23,16 +25,22 @@ export function SiteHeader() {
   return (
     <header
       className={`sticky top-0 z-50 border-b border-border backdrop-blur transition-colors duration-300 ${
-        open ? "bg-background/70" : "bg-background/80"
+        open ? "bg-background/90" : "bg-background/90"
       }`}
     >
+      <div className="flex h-1.5 w-full" aria-hidden="true">
+        <span className="flex-1 bg-[#FF9933]" />
+        <span className="flex-1 bg-white" />
+        <span className="flex-1 bg-[#138808]" />
+      </div>
+
       <div className="border-b border-border">
         <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between px-4 py-2 sm:px-6">
-          <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-            Government of India
+          <span className="text-sm font-semibold tracking-wide text-foreground">
+            {brand("goi")}
           </span>
-          <span className="hidden font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground sm:block">
-            Official website
+          <span className="hidden text-sm font-medium text-muted-foreground sm:block">
+            {brand("official")}
           </span>
         </div>
       </div>
@@ -40,9 +48,17 @@ export function SiteHeader() {
       <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
         <Link
           href={`/${locale}`}
-          className="rounded-sm font-serif text-xl font-medium tracking-tight text-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
+          className="flex min-w-0 items-center gap-3 rounded-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
         >
-          CPGRAMS
+          <GoiEmblem className="h-14 w-auto shrink-0 sm:h-16" alt={brand("emblemAlt")} />
+          <span className="min-w-0">
+            <span className="block text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+              CPGRAMS
+            </span>
+            <span className="mt-0.5 block truncate text-sm font-semibold text-muted-foreground sm:text-base">
+              {brand("product")}
+            </span>
+          </span>
         </Link>
 
         <div className="flex items-center gap-2">
@@ -60,10 +76,10 @@ export function SiteHeader() {
                   key={link.href}
                   href={link.href}
                   aria-current={isCurrent ? "page" : undefined}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring ${
+                  className={`rounded-full px-4 py-2 text-base font-bold transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring ${
                     isCurrent
                       ? "bg-muted text-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      : "text-foreground hover:bg-muted"
                   }`}
                 >
                   {link.label}
@@ -79,7 +95,7 @@ export function SiteHeader() {
             aria-label="Toggle menu"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className="relative z-50 flex h-10 w-10 items-center justify-center rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring md:hidden"
+            className="relative z-50 flex h-11 w-11 items-center justify-center rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring md:hidden"
           >
             <span className="sr-only">Menu</span>
             <span className="relative block h-4 w-5">
@@ -122,10 +138,10 @@ export function SiteHeader() {
                 href={link.href}
                 onClick={() => setOpen(false)}
                 aria-current={isCurrent ? "page" : undefined}
-                className={`rounded-md px-4 py-2 text-sm font-medium transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring ${
+                className={`rounded-md px-4 py-3 text-lg font-bold transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring ${
                   isCurrent
                     ? "bg-muted text-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    : "text-foreground hover:bg-muted"
                 }`}
               >
                 {link.label}

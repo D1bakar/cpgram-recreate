@@ -213,7 +213,7 @@ export function TrackComplaintForm() {
           className="mt-10 space-y-10 border-t border-border pt-10"
         >
           <div>
-            <h2 id="status-heading" className="font-serif text-xl font-medium">
+            <h2 id="status-heading" className="text-2xl font-extrabold">
               {t("statusHeading")}
             </h2>
             <dl className="mt-6 space-y-3 text-base">
@@ -255,7 +255,7 @@ export function TrackComplaintForm() {
           </div>
 
           <div>
-            <h3 className="font-serif text-lg font-medium">
+            <h3 className="text-xl font-extrabold">
               {t("latestResponse")}
             </h3>
             <p className="mt-3 text-base leading-7 text-foreground">
@@ -264,7 +264,7 @@ export function TrackComplaintForm() {
           </div>
 
           <div>
-            <h3 className="mb-6 font-serif text-lg font-medium">
+            <h3 className="mb-6 text-xl font-extrabold">
               {t("timeline")}
             </h3>
             <StatusTimeline complaint={complaint} />
@@ -274,7 +274,7 @@ export function TrackComplaintForm() {
           </div>
 
           <div className="rounded-3xl border border-border bg-card p-6">
-            <h3 className="font-serif text-lg font-medium">{t("nextAction")}</h3>
+            <h3 className="text-xl font-extrabold">{t("nextAction")}</h3>
             <p className="mt-3 text-base leading-7 text-foreground">
               {nextAction(complaint.status)}
             </p>

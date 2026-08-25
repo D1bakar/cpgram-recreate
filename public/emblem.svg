@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 190" fill="none" aria-hidden="true">
+  <title>State Emblem of India</title>
+  <path fill="#1a365d" d="M80 18c-7 0-12 8-12 18 0 6 2 11 5 14-8-1-14 4-14 12 0 6 4 11 10 13-9 1-16 8-16 17 0 12 10 20 27 20s27-8 27-20c0-9-7-16-16-17 6-2 10-7 10-13 0-8-6-13-14-12 3-3 5-8 5-14 0-10-5-18-12-18z"/>
+  <path fill="#1a365d" d="M38 52c-11 4-20 16-18 32 2 14 12 22 26 24-2-7-2-14 1-20-8-4-12-12-10-22 1-8 7-14 13-16-6-1-11-1-12 2z"/>
+  <path fill="#1a365d" d="M122 52c11 4 20 16 18 32-2 14-12 22-26 24 2-7 2-14-1-20 8-4 12-12 10-22-1-8-7-14-13-16 6-1 11-1 12 2z"/>
+  <circle cx="80" cy="44" r="4.5" fill="#c9a227"/>
+  <rect x="28" y="108" width="104" height="14" rx="2" fill="#1a365d"/>
+  <circle cx="80" cy="115" r="9" fill="#c9a227"/>
+  <circle cx="80" cy="115" r="5.5" fill="#1a365d"/>
+  <circle cx="80" cy="115" r="2" fill="#c9a227"/>
+  <g fill="#c9a227">
+    <circle cx="44" cy="115" r="3.2"/>
+    <circle cx="56" cy="115" r="3.2"/>
+    <circle cx="104" cy="115" r="3.2"/>
+    <circle cx="116" cy="115" r="3.2"/>
+  </g>
+  <path fill="#1a365d" d="M24 124h112c-4 10-18 18-32 22-8 8-16 14-24 18-8-4-16-10-24-18-14-4-28-12-32-22z"/>
+  <path fill="#c9a227" d="M40 128c8 8 18 14 40 22 22-8 32-14 40-22-10 6-24 12-40 16-16-4-30-10-40-16z"/>
+  <path fill="#1a365d" d="M18 152h124v22H18z"/>
+  <path fill="#f4f1e8" d="M26 158h108v10H26z"/>
+  <text x="80" y="166.5" text-anchor="middle" font-size="9" font-family="Noto Serif, Georgia, serif" font-weight="700" fill="#1a365d">8$M/.G5 /$G</text>
+</svg>

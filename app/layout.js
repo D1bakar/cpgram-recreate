@@ -1,4 +1,4 @@
-import { IBM_Plex_Mono, Source_Sans_3, Source_Serif_4 } from "next/font/google";
+import { IBM_Plex_Mono, Noto_Sans } from "next/font/google";
 import { cookies } from "next/headers";
 import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
@@ -11,22 +11,17 @@ import "./globals.css";
 
 const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';localStorage.setItem('theme',t);}document.cookie='theme='+t+';path=/;max-age=31536000;SameSite=Lax';if(t==='dark'){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}}catch(e){}})();`;
 
-const sourceSans = Source_Sans_3({
+const notoSans = Noto_Sans({
   variable: "--font-source-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const sourceSerif = Source_Serif_4({
-  variable: "--font-source-serif",
-  subsets: ["latin"],
+  subsets: ["latin", "devanagari"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
 const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
@@ -46,7 +41,7 @@ export default async function RootLayout({ children }) {
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${sourceSans.variable} ${sourceSerif.variable} ${plexMono.variable} h-full antialiased${isDark ? " dark" : ""}`}
+      className={`${notoSans.variable} ${notoSans.className} ${plexMono.variable} h-full antialiased${isDark ? " dark" : ""}`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <Script id="theme-bootstrap" strategy="beforeInteractive">

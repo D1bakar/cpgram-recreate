@@ -27,7 +27,7 @@ export default function LanguageSwitcher() {
           type="button"
           onClick={() => changeLanguage(code)}
           aria-pressed={locale === code}
-          className={`rounded-full px-3 py-2 text-sm font-medium outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring ${
+          className={`rounded-full px-3 py-2 text-base font-bold outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring ${
             locale === code
               ? "bg-muted text-foreground"
               : "text-muted-foreground hover:bg-muted hover:text-foreground"

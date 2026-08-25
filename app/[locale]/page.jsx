@@ -42,10 +42,10 @@ export default async function Home({ params }) {
     >
       <section className="max-w-2xl">
         <Eyebrow>{t("hero.eyebrow")}</Eyebrow>
-        <h1 className="mt-4 max-w-xl font-serif text-4xl font-medium tracking-[-0.12px] text-foreground sm:text-5xl lg:text-[61px] lg:leading-[1.1]">
+        <h1 className="mt-4 max-w-3xl text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl lg:leading-[1.08]">
           {t("hero.title")}
         </h1>
-        <p className="mt-5 max-w-md text-[20px] leading-[1.4] text-muted-foreground">
+        <p className="mt-6 max-w-2xl text-xl font-medium leading-8 text-foreground sm:text-2xl">
           {t("hero.subtitle")}
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -53,7 +53,7 @@ export default async function Home({ params }) {
             size="lg"
             nativeButton={false}
             render={<Link href={`/${locale}/file-complaint`} />}
-            className="h-12 px-6 text-base"
+            className="h-14 px-7 text-lg"
           >
             {t("hero.cta")}
           </Button>
@@ -62,7 +62,7 @@ export default async function Home({ params }) {
             size="lg"
             nativeButton={false}
             render={<Link href={`/${locale}/track`} />}
-            className="h-12 px-6 text-base"
+            className="h-14 px-7 text-lg"
           >
             {t("hero.track")}
           </Button>
@@ -71,7 +71,7 @@ export default async function Home({ params }) {
 
       <section className="mt-20 border-t border-border pt-16">
         <Eyebrow>{t("steps.eyebrow")}</Eyebrow>
-        <h2 className="mt-3 font-serif text-2xl font-medium tracking-tight text-foreground">
+        <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground">
           {t("steps.title")}
         </h2>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -80,13 +80,13 @@ export default async function Home({ params }) {
               key={step.title}
               className="rounded-3xl border border-border bg-card p-6 sm:p-8"
             >
-              <p className="font-mono text-sm text-clay">
+              <p className="text-base font-bold text-clay">
                 {String(index + 1).padStart(2, "0")}
               </p>
-              <h3 className="mt-3 font-serif text-lg font-medium text-foreground">
+              <h3 className="mt-3 text-xl font-extrabold text-foreground">
                 {step.title}
               </h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              <p className="mt-3 text-lg leading-8 text-foreground">
                 {step.body}
               </p>
             </div>
@@ -96,22 +96,22 @@ export default async function Home({ params }) {
 
       <section className="mt-16 border-t border-border pt-16">
         <Eyebrow>{t("scope.eyebrow")}</Eyebrow>
-        <h2 className="mt-3 font-serif text-2xl font-medium tracking-tight text-foreground">
+        <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground">
           {t("scope.title")}
         </h2>
-        <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
+        <p className="mt-4 max-w-2xl text-lg leading-8 text-foreground">
           {t("scope.intro")}
         </p>
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           <div className="rounded-3xl border border-border bg-card p-6 sm:p-8">
-            <h3 className="font-serif text-lg font-medium">
+            <h3 className="text-xl font-extrabold">
               {t("scope.includes_title")}
             </h3>
             <ul className="mt-4 space-y-3">
               {includes.map((item) => (
                 <li
                   key={item}
-                  className="flex gap-3 text-sm leading-6 text-foreground"
+                  className="flex gap-3 text-lg leading-8 text-foreground"
                 >
                   <span aria-hidden="true" className="mt-1 text-clay">
                     →
@@ -122,14 +122,14 @@ export default async function Home({ params }) {
             </ul>
           </div>
           <div className="rounded-3xl border border-border bg-card p-6 sm:p-8">
-            <h3 className="font-serif text-lg font-medium">
+            <h3 className="text-xl font-extrabold">
               {t("scope.excludes_title")}
             </h3>
             <ul className="mt-4 space-y-3">
               {excludes.map((item) => (
                 <li
                   key={item}
-                  className="flex gap-3 text-sm leading-6 text-foreground"
+                  className="flex gap-3 text-lg leading-8 text-foreground"
                 >
                   <span aria-hidden="true" className="mt-1 text-muted-foreground">
                     —
@@ -144,7 +144,7 @@ export default async function Home({ params }) {
 
       <section className="mt-16 border-t border-border pt-16">
         <Eyebrow>{t("notes.eyebrow")}</Eyebrow>
-        <h2 className="mt-3 font-serif text-2xl font-medium tracking-tight text-foreground">
+        <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground">
           {t("notes.title")}
         </h2>
         <div className="mt-6 rounded-3xl border border-border bg-card p-6 sm:p-8">
@@ -152,7 +152,7 @@ export default async function Home({ params }) {
             {notes.map((note) => (
               <li
                 key={note}
-                className="flex gap-3 text-sm leading-6 text-foreground"
+                className="flex gap-3 text-lg leading-8 text-foreground"
               >
                 <span aria-hidden="true" className="mt-1 text-clay">
                   →
@@ -166,16 +166,16 @@ export default async function Home({ params }) {
 
       <section className="mt-16 border-t border-border pt-16">
         <Eyebrow>{t("faq.eyebrow")}</Eyebrow>
-        <h2 className="mt-3 font-serif text-2xl font-medium tracking-tight text-foreground">
+        <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground">
           {t("faq.title")}
         </h2>
         <div className="mt-8 space-y-6">
           {faqs.map((item) => (
             <div key={item.q} className="max-w-2xl">
-              <h3 className="font-serif text-lg font-medium text-foreground">
+              <h3 className="text-xl font-extrabold text-foreground">
                 {item.q}
               </h3>
-              <p className="mt-2 text-base leading-7 text-muted-foreground">
+              <p className="mt-2 text-lg leading-8 text-foreground">
                 {item.a}
               </p>
             </div>
