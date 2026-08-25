@@ -1,4 +1,5 @@
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { IBM_Plex_Mono, Source_Sans_3, Source_Serif_4 } from "next/font/google";
+import { cookies } from "next/headers";
 import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -8,17 +9,24 @@ import { SiteHeader } from "@/components/site-header";
 
 import "./globals.css";
 
-const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(!t){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}if(t==='light'){document.documentElement.classList.add('light');}}catch(e){}})();`;
+const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';localStorage.setItem('theme',t);}document.cookie='theme='+t+';path=/;max-age=31536000;SameSite=Lax';if(t==='dark'){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}}catch(e){}})();`;
 
-const inter = Inter({
-  variable: "--font-inter",
+const sourceSans = Source_Sans_3({
+  variable: "--font-source-sans",
   subsets: ["latin"],
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
+const sourceSerif = Source_Serif_4({
+  variable: "--font-source-serif",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -31,11 +39,14 @@ export const metadata = {
 export default async function RootLayout({ children }) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const theme = (await cookies()).get("theme")?.value;
+  const isDark = theme === "dark";
 
   return (
     <html
       lang={locale}
-      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      suppressHydrationWarning
+      className={`${sourceSans.variable} ${sourceSerif.variable} ${plexMono.variable} h-full antialiased${isDark ? " dark" : ""}`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <Script id="theme-bootstrap" strategy="beforeInteractive">

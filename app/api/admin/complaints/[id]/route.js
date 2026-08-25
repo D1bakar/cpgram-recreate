@@ -49,6 +49,22 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  const allowed = {
+    Received: ["Under Review"],
+    "Under Review": ["Resolved", "Rejected"],
+    Resolved: [],
+    Rejected: [],
+  };
+  const from = complaint.status;
+  if (status !== from && !(allowed[from] ?? []).includes(status)) {
+    return NextResponse.json(
+      {
+        error: `Cannot change status from ${from} to ${status}`,
+      },
+      { status: 400 },
+    );
+  }
+
   complaint.status = status;
   complaint.history.push({ status, note });
   await complaint.save();

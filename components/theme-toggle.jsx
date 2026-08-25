@@ -3,20 +3,22 @@
 import { useEffect, useState } from "react";
 
 export function ThemeToggle() {
-  const [light, setLight] = useState(false);
+  const [light, setLight] = useState(true);
 
   useEffect(() => {
-    setLight(document.documentElement.classList.contains("light"));
+    setLight(!document.documentElement.classList.contains("dark"));
   }, []);
 
   function toggle() {
-    const isLight = document.documentElement.classList.toggle("light");
+    const isDark = document.documentElement.classList.toggle("dark");
+    const theme = isDark ? "dark" : "light";
     try {
-      localStorage.setItem("theme", isLight ? "light" : "dark");
+      localStorage.setItem("theme", theme);
+      document.cookie = `theme=${theme};path=/;max-age=31536000;SameSite=Lax`;
     } catch {
       // ignore storage failures
     }
-    setLight(isLight);
+    setLight(!isDark);
   }
 
   return (
@@ -24,7 +26,7 @@ export function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label="Toggle colour theme"
-      className="rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground outline-none transition-colors hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring"
+      className="rounded-xl border border-border px-3 py-2 text-sm font-medium text-foreground outline-none transition-colors hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring"
     >
       {light ? "Dark" : "Light"}
     </button>
