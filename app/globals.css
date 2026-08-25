@@ -37,7 +37,7 @@
   --color-clay-deep: #c6613f;
 
   --font-sans: var(--font-anthropic-sans);
-  --font-serif: var(--font-anthropic-serif);
+  --font-serif: var(--font-anthropic-sans);
   --font-mono: var(--font-anthropic-mono);
 
   --radius-sm: 8px;
@@ -59,7 +59,7 @@
   --secondary: var(--color-oat-warm);
   --secondary-foreground: var(--color-slate-dark);
   --muted: var(--color-oat-warm);
-  --muted-foreground: var(--color-cloud-dark);
+  --muted-foreground: var(--color-slate-medium);
   --accent: var(--color-manilla);
   --accent-foreground: var(--color-slate-dark);
   --destructive: var(--color-clay-deep);
@@ -97,16 +97,20 @@
 
   html {
     @apply font-sans antialiased;
+    font-size: 18px;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-lg font-medium leading-relaxed text-foreground;
   }
 
   h1,
   h2,
   h3 {
-    font-family: var(--font-anthropic-serif);
+    font-family: var(--font-anthropic-sans);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
   }
 
   ::selection {

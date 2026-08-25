@@ -24,10 +24,10 @@ export default async function FileComplaintPage({ params }) {
       className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6 sm:py-14"
     >
       <Eyebrow>{t("eyebrow")}</Eyebrow>
-      <h1 className="mt-3 max-w-xl font-serif text-3xl font-medium tracking-tight text-pretty sm:text-4xl">
+      <h1 className="mt-3 max-w-2xl text-4xl font-extrabold tracking-tight text-pretty sm:text-5xl">
         {t("title")}
       </h1>
-      <p className="mt-5 max-w-xl text-lg leading-8 text-foreground">
+      <p className="mt-5 max-w-2xl text-xl font-medium leading-8 text-foreground">
         {t("intro")}
       </p>
       <div className="mt-10">

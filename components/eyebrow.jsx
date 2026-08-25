@@ -1,7 +1,7 @@
 export function Eyebrow({ children, className = "" }) {
   return (
     <p
-      className={`font-mono text-[12px] uppercase tracking-[0.08em] text-cloud-dark ${className}`}
+      className={`font-sans text-sm font-bold uppercase tracking-[0.12em] text-clay ${className}`}
     >
       {children}
     </p>
