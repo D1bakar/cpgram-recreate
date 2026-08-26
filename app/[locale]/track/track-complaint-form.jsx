@@ -279,6 +279,32 @@ export function TrackComplaintForm() {
                 </dd>
               </div>
             ) : null}
+            {complaint.media?.length ? (
+              <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[minmax(0,220px)_1fr] sm:gap-4">
+                <dt className="font-bold">{t("attachments")}</dt>
+                <dd className="mt-1 sm:mt-0">
+                  <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {complaint.media.map((item) => (
+                      <li key={item.url}>
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="block overflow-hidden rounded-lg border border-[#b1b4b6]"
+                        >
+                          <img
+                            src={item.url}
+                            alt={item.name || t("attachments")}
+                            className="h-32 w-full object-cover"
+                            loading="lazy"
+                          />
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </dd>
+              </div>
+            ) : null}
             {updatedLabel ? (
               <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[minmax(0,220px)_1fr] sm:gap-4">
                 <dt className="font-bold">{t("lastUpdated")}</dt>

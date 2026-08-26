@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# locally stored complaint uploads (when Cloudinary is not configured)
+/public/uploads/
+
 # production
 /build
 

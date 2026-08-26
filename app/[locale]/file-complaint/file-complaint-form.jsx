@@ -45,8 +45,19 @@ const emptyForm = {
 };
 
 const MAX_FILES = 5;
-const MAX_FILE_BYTES = 5 * 1024 * 1024;
-const ALLOWED_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_TYPES = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+  "image/gif",
+  "image/bmp",
+  "image/avif",
+  "image/heic",
+  "image/heif",
+  "image/tiff",
+]);
 
 function isValidMobile(value) {
   return /^[6-9]\d{9}$/.test(value.replaceAll(" ", ""));
@@ -118,6 +129,7 @@ export function FileComplaintForm() {
         id: `${file.name}-${file.size}-${file.lastModified}`,
         name: file.name,
         size: file.size,
+        file,
       });
     }
 
@@ -144,6 +156,37 @@ export function FileComplaintForm() {
     setSubmitting(true);
     setApiError("");
     try {
+      let media = [];
+      if (files.length) {
+        try {
+          media = await Promise.all(
+            files.map(async (entry) => {
+              const form = new FormData();
+              form.append("file", entry.file);
+              const res = await fetch("/api/upload", { method: "POST", body: form });
+              const data = await readJson(res);
+              if (!res.ok || !data?.media) {
+                throw new Error(data?.error || t("uploadError"));
+              }
+              return {
+                url: data.media.url,
+                publicId: data.media.publicId,
+                name: data.media.name,
+                bytes: data.media.bytes,
+                type: data.media.type,
+              };
+            }),
+          );
+        } catch (uploadError) {
+          setApiError(
+            uploadError instanceof Error ? uploadError.message : t("uploadError"),
+          );
+          setSubmitting(false);
+          submitLock.current = false;
+          return;
+        }
+      }
+
       const departmentLabel =
         DEPARTMENT_LABELS[values.department] ?? values.department;
       const categoryLabel = CATEGORY_LABELS[values.category] ?? values.category;
@@ -153,15 +196,10 @@ export function FileComplaintForm() {
         email: values.email.trim(),
         department: departmentLabel,
         subject: values.subject.trim(),
-        details: [
-          `Category: ${categoryLabel}`,
-          values.details.trim(),
-          files.length
-            ? `Attached files (names only): ${files.map((f) => f.name).join(", ")}`
-            : null,
-        ]
+        details: [`Category: ${categoryLabel}`, values.details.trim()]
           .filter(Boolean)
           .join("\n\n"),
+        media,
       };
 
       const response = await fetch("/api/complaints", {
@@ -583,7 +621,7 @@ export function FileComplaintForm() {
               name="documents"
               type="file"
               multiple
-              accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+              accept="image/png,image/jpeg,image/jpg,image/webp,image/gif,image/bmp,image/avif,image/heic,image/heif,image/tiff"
               aria-describedby={
                 errors.documents
                   ? "documents-hint documents-error"

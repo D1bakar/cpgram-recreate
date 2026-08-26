@@ -33,6 +33,20 @@ export async function POST(request) {
   const department = String(body?.department ?? "").trim();
   const subject = String(body?.subject ?? "").trim();
   const details = String(body?.details ?? "").trim();
+  const rawMedia = Array.isArray(body?.media) ? body.media : [];
+  const media = rawMedia
+    .filter(
+      (item) =>
+        item && typeof item.url === "string" && item.url.trim().length > 0,
+    )
+    .slice(0, 10)
+    .map((item) => ({
+      url: String(item.url).trim(),
+      publicId: item.publicId ? String(item.publicId) : null,
+      name: item.name ? String(item.name) : "",
+      bytes: Number.isFinite(item.bytes) ? item.bytes : 0,
+      type: item.type ? String(item.type) : "",
+    }));
 
   const errors = {};
   if (!fullName) errors.fullName = "Enter your full name";
@@ -59,6 +73,7 @@ export async function POST(request) {
       department,
       subject,
       details,
+      media,
       status: "Received",
       history: [{ status: "Received", note: "Complaint received" }],
     });

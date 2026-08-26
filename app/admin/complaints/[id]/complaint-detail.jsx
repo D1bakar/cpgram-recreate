@@ -192,6 +192,43 @@ export function ComplaintDetail({ complaintId }) {
             {complaint.details}
           </dd>
         </div>
+        <div>
+          <dt className="font-semibold">{t("attachments")}</dt>
+          <dd className="mt-1 text-foreground">
+            {complaint.media?.length ? (
+              <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                {complaint.media.map((item) => (
+                  <li key={item.url} className="flex flex-col gap-2">
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="block overflow-hidden rounded-lg border border-border bg-card"
+                    >
+                      <img
+                        src={item.url}
+                        alt={item.name || t("attachments")}
+                        className="h-40 w-full object-cover"
+                        loading="lazy"
+                      />
+                    </a>
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="truncate text-sm font-medium underline-offset-4 hover:underline"
+                      title={item.name}
+                    >
+                      {item.name || item.url}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <span className="text-muted-foreground">{t("noAttachments")}</span>
+            )}
+          </dd>
+        </div>
       </dl>
 
       <section
