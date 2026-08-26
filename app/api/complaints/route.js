@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { connectDB } from "@/lib/db";
+import { sendEmail, renderEmailHtml } from "@/lib/email";
 import { Complaint } from "@/lib/models/Complaint";
 
 function isMobile(value) {
@@ -77,6 +78,55 @@ export async function POST(request) {
       status: "Received",
       history: [{ status: "Received", note: "Complaint received" }],
     });
+
+    const origin = (() => {
+      try {
+        return new URL(request.url).origin;
+      } catch {
+        return process.env.APP_URL || "";
+      }
+    })();
+    try {
+      const trackUrl = origin
+        ? `${origin}/track?ref=${encodeURIComponent(registrationNumber)}`
+        : null;
+      await sendEmail({
+        to: complaint.email,
+        subject: `Grievance registered: ${registrationNumber}`,
+        text: [
+          `Dear ${complaint.fullName},`,
+          "",
+          `Your grievance has been registered with reference number ${registrationNumber}.`,
+          `Department: ${complaint.department}`,
+          `Subject: ${complaint.subject}`,
+          "",
+          trackUrl
+            ? `Track it here: ${trackUrl}`
+            : `Keep this reference number safe to track your complaint.`,
+          "",
+          "Regards,",
+          "CPGRAMS Team",
+        ].join("\n"),
+        html: renderEmailHtml({
+          preheader: `Your grievance ${registrationNumber} has been registered.`,
+          heading: "Grievance registered",
+          greeting: `Dear ${complaint.fullName},`,
+          message:
+            "Your grievance has been registered successfully. Keep your reference number safe — you can track its progress any time using the link below.",
+          fields: [
+            ["Reference number", registrationNumber],
+            ["Department", complaint.department],
+            ["Subject", complaint.subject],
+          ],
+          cta: trackUrl
+            ? { href: trackUrl, text: "Track your complaint" }
+            : null,
+        }),
+      });
+    } catch (emailError) {
+      console.error("Failed to send complaint confirmation email:", emailError);
+    }
+
     return NextResponse.json(
       { registrationNumber: complaint.registrationNumber },
       { status: 201 },

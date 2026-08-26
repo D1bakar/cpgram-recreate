@@ -279,6 +279,14 @@ export function TrackComplaintForm() {
                 </dd>
               </div>
             ) : null}
+            {complaint.details ? (
+              <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[minmax(0,220px)_1fr] sm:gap-4">
+                <dt className="font-bold">{t("description")}</dt>
+                <dd className="mt-1 whitespace-pre-wrap break-words text-foreground sm:mt-0">
+                  {complaint.details}
+                </dd>
+              </div>
+            ) : null}
             {complaint.media?.length ? (
               <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[minmax(0,220px)_1fr] sm:gap-4">
                 <dt className="font-bold">{t("attachments")}</dt>
