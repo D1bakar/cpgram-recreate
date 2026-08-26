@@ -21,10 +21,12 @@ export function GrievanceTimeline({ history = [], locale }) {
   const items = collapseHistory(history);
 
   function formatDate(value) {
-    return new Date(value).toLocaleString(
-      dateLocale === "hi" ? "hi-IN" : "en-IN",
-      { dateStyle: "medium", timeStyle: "short" },
-    );
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleString(dateLocale === "hi" ? "hi-IN" : "en-IN", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
   }
 
   if (!items.length) {
@@ -42,18 +44,22 @@ export function GrievanceTimeline({ history = [], locale }) {
             Rejected: t("statuses.Rejected"),
           }[entry.status] ?? entry.status;
 
+        const when = formatDate(entry.at);
+
         return (
           <li
             key={String(entry._id ?? `${entry.status}-${entry.at}-${index}`)}
-            className="relative pb-8 last:pb-0"
+            className="relative min-w-0 pb-8 last:pb-0"
           >
             <h3 className="text-[19px] font-bold text-[#0b0c0c]">{label}</h3>
             {entry.note?.trim() ? (
-              <p className="mt-2 text-[19px] leading-[1.315] text-[#0b0c0c]">
+              <p className="mt-2 break-words text-[19px] leading-[1.315] text-[#0b0c0c]">
                 {entry.note}
               </p>
             ) : null}
-            <p className="mt-1 text-[16px] text-[#505a5f]">{formatDate(entry.at)}</p>
+            {when ? (
+              <p className="mt-1 text-[16px] text-[#505a5f]">{when}</p>
+            ) : null}
           </li>
         );
       })}

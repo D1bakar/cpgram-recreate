@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { GrievanceTimeline } from "@/components/grievance-timeline";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
   hintClassName,
   labelClassName,
 } from "@/lib/form-styles";
+import { readJson } from "@/lib/read-json";
 
 function isValidRegistration(value) {
   return /^[A-Za-z0-9/-]{6,20}$/.test(value.trim());
@@ -30,6 +31,15 @@ function statusClass(status) {
   }
 }
 
+function formatSafeDate(value, locale) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString(locale === "hi" ? "hi-IN" : "en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
 export function TrackComplaintForm() {
   const t = useTranslations("track");
   const tv = useTranslations("validation");
@@ -40,20 +50,7 @@ export function TrackComplaintForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [complaint, setComplaint] = useState(null);
-
-  useEffect(() => {
-    const ref = searchParams.get("ref");
-    if (ref) {
-      setRegistrationNumber(ref);
-    }
-  }, [searchParams]);
-
-  function formatDate(value) {
-    return new Date(value).toLocaleString(
-      locale === "hi" ? "hi-IN" : "en-IN",
-      { dateStyle: "medium", timeStyle: "short" },
-    );
-  }
+  const requestId = useRef(0);
 
   function statusLabel(status) {
     const map = {
@@ -73,37 +70,58 @@ export function TrackComplaintForm() {
         return t("nextResolved");
       case "Rejected":
         return t("nextRejected");
-      case "Received":
       default:
         return t("nextReceived");
     }
   }
 
-  async function lookup(number) {
-    setError("");
-    setLoading(true);
-    setComplaint(null);
+  const lookup = useCallback(
+    async (number, signal) => {
+      const id = ++requestId.current;
+      setError("");
+      setLoading(true);
+      setComplaint(null);
 
-    try {
-      const response = await fetch(
-        `/api/complaints/${encodeURIComponent(number.trim().toUpperCase())}`,
-      );
-      const data = await response.json();
+      try {
+        const response = await fetch(
+          `/api/complaints/${encodeURIComponent(number.trim().toUpperCase())}`,
+          { signal },
+        );
+        if (id !== requestId.current) return;
+        const data = await readJson(response);
 
-      if (!response.ok) {
-        setError(data?.error ?? tv("notFound"));
+        if (!response.ok) {
+          const message =
+            response.status === 404
+              ? tv("notFound")
+              : response.status === 400
+                ? tv("registrationInvalid")
+                : tv("generic");
+          setError(message);
+          document.getElementById(errorSummaryId)?.focus();
+          return;
+        }
+
+        if (!data?.complaint) {
+          setError(tv("generic"));
+          document.getElementById(errorSummaryId)?.focus();
+          return;
+        }
+
+        setComplaint(data.complaint);
+      } catch (caught) {
+        if (caught?.name === "AbortError") return;
+        if (id !== requestId.current) return;
+        setError(tv("generic"));
         document.getElementById(errorSummaryId)?.focus();
-        return;
+      } finally {
+        if (id === requestId.current) {
+          setLoading(false);
+        }
       }
-
-      setComplaint(data.complaint);
-    } catch {
-      setError(tv("generic"));
-      document.getElementById(errorSummaryId)?.focus();
-    } finally {
-      setLoading(false);
-    }
-  }
+    },
+    [errorSummaryId, tv],
+  );
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -125,18 +143,31 @@ export function TrackComplaintForm() {
     await lookup(registrationNumber);
   }
 
+  const refParam = searchParams.get("ref");
+
   useEffect(() => {
-    const ref = searchParams.get("ref");
-    if (ref && isValidRegistration(ref)) {
-      lookup(ref);
+    if (!refParam) return undefined;
+
+    setRegistrationNumber(refParam);
+    if (!isValidRegistration(refParam)) {
+      setError(tv("registrationInvalid"));
+      return undefined;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot preload from query
-  }, []);
+
+    const controller = new AbortController();
+    lookup(refParam, controller.signal);
+    return () => controller.abort();
+  }, [lookup, refParam, tv]);
 
   const latestNote = complaint?.history
     ?.slice()
     .reverse()
-    .find((entry) => entry.note && entry.note.trim())?.note;
+    .find((entry) => entry.note?.trim())?.note;
+
+  const updatedLabel = formatSafeDate(
+    complaint?.updatedAt ?? complaint?.createdAt,
+    locale,
+  );
 
   return (
     <div>
@@ -145,6 +176,7 @@ export function TrackComplaintForm() {
           <div
             id={errorSummaryId}
             tabIndex={-1}
+            role="alert"
             className="mb-8 border-l-8 border-[#d4351c] bg-[#f3f2f1] px-5 py-5 outline-none"
           >
             <h2 className="text-lg font-semibold text-destructive">
@@ -173,6 +205,7 @@ export function TrackComplaintForm() {
             name="registrationNumber"
             autoComplete="off"
             spellCheck="false"
+            required
             value={registrationNumber}
             aria-invalid={Boolean(error)}
             aria-describedby={
@@ -199,6 +232,7 @@ export function TrackComplaintForm() {
             size="lg"
             className="h-12 px-6 text-base"
             disabled={loading}
+            aria-busy={loading}
           >
             {loading ? t("checking") : t("submit")}
           </Button>
@@ -215,38 +249,46 @@ export function TrackComplaintForm() {
           </h2>
 
           <dl className="mt-6">
-            <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[220px_1fr] sm:gap-4">
+            <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[minmax(0,220px)_1fr] sm:gap-4">
               <dt className="font-bold">{t("reference")}</dt>
-              <dd className="mt-1 font-mono sm:mt-0">{complaint.registrationNumber}</dd>
+              <dd className="mt-1 break-all font-mono sm:mt-0">
+                {complaint.registrationNumber}
+              </dd>
             </div>
-            <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[220px_1fr] sm:gap-4">
+            <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[minmax(0,220px)_1fr] sm:gap-4">
               <dt className="font-bold">{t("currentStatus")}</dt>
-              <dd className={`mt-1 font-bold sm:mt-0 ${statusClass(complaint.status)}`}>
+              <dd
+                className={`mt-1 font-bold sm:mt-0 ${statusClass(complaint.status)}`}
+              >
                 {statusLabel(complaint.status)}
               </dd>
             </div>
             {complaint.department ? (
-              <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[220px_1fr] sm:gap-4">
+              <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[minmax(0,220px)_1fr] sm:gap-4">
                 <dt className="font-bold">{t("department")}</dt>
-                <dd className="mt-1 sm:mt-0">{complaint.department}</dd>
+                <dd className="mt-1 break-words sm:mt-0">
+                  {complaint.department}
+                </dd>
               </div>
             ) : null}
             {complaint.subject ? (
-              <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[220px_1fr] sm:gap-4">
+              <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[minmax(0,220px)_1fr] sm:gap-4">
                 <dt className="font-bold">{t("subject")}</dt>
-                <dd className="mt-1 sm:mt-0">{complaint.subject}</dd>
+                <dd className="mt-1 break-words sm:mt-0">
+                  {complaint.subject}
+                </dd>
               </div>
             ) : null}
-            <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[220px_1fr] sm:gap-4">
-              <dt className="font-bold">{t("lastUpdated")}</dt>
-              <dd className="mt-1 sm:mt-0">
-                {formatDate(complaint.updatedAt ?? complaint.createdAt)}
-              </dd>
-            </div>
+            {updatedLabel ? (
+              <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[minmax(0,220px)_1fr] sm:gap-4">
+                <dt className="font-bold">{t("lastUpdated")}</dt>
+                <dd className="mt-1 sm:mt-0">{updatedLabel}</dd>
+              </div>
+            ) : null}
           </dl>
 
           <h3 className="mt-10 text-[19px] font-bold">{t("latestResponse")}</h3>
-          <p className="mt-3 text-[19px] leading-[1.315]">
+          <p className="mt-3 text-[19px] leading-[1.315] break-words">
             {latestNote || t("noResponse")}
           </p>
 

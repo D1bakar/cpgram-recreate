@@ -13,12 +13,15 @@
   --color-clay-deep: #003078;
 
   /* Typography — Font Families */
-  --font-anthropic-serif: var(--font-source-sans), ui-sans-serif, system-ui,
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-anthropic-sans: var(--font-source-sans), ui-sans-serif, system-ui,
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-anthropic-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular,
-    Menlo, Monaco, Consolas, monospace;
+  --font-anthropic-serif:
+    var(--font-source-sans), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-anthropic-sans:
+    var(--font-source-sans), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-anthropic-mono:
+    var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, monospace;
 
   /* Typography — Scale */
   --text-caption: 12px;

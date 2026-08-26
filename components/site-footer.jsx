@@ -1,13 +1,11 @@
-"use client";
-
 import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { GoiEmblem } from "@/components/goi-emblem";
 
-export function SiteFooter() {
-  const t = useTranslations();
-  const locale = useLocale();
+export async function SiteFooter() {
+  const t = await getTranslations();
+  const locale = await getLocale();
 
   return (
     <footer className="mt-auto border-t border-[#c5d5cc] bg-[#eaf2ee] text-[#1b4332]">

@@ -1,20 +1,36 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { fieldClassName, labelClassName } from "@/lib/form-styles";
+import { readJson } from "@/lib/read-json";
 
 export function AdminLoginForm() {
+  const t = useTranslations("admin");
   const router = useRouter();
   const [accessCode, setAccessCode] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const submitLock = useRef(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (submitLock.current) return;
+
+    if (!accessCode.trim()) {
+      setError(t("accessCodeRequired"));
+      return;
+    }
+    if (!password) {
+      setError(t("passwordRequired"));
+      return;
+    }
+
+    submitLock.current = true;
     setError("");
     setSubmitting(true);
 
@@ -25,6 +41,7 @@ export function AdminLoginForm() {
         credentials: "same-origin",
         body: JSON.stringify({ accessCode, password }),
       });
+      await readJson(response);
 
       if (response.ok) {
         router.push("/admin");
@@ -33,13 +50,14 @@ export function AdminLoginForm() {
       }
 
       if (response.status === 401) {
-        setError("Invalid access code or password");
+        setError(t("invalidCredentials"));
       } else {
-        setError("Something went wrong. Please try again.");
+        setError(t("loginFailed"));
       }
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(t("loginFailed"));
     } finally {
+      submitLock.current = false;
       setSubmitting(false);
     }
   }
@@ -47,19 +65,24 @@ export function AdminLoginForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-8">
       {error ? (
-        <div className="border-l-4 border-destructive bg-muted px-5 py-5">
+        <div
+          className="border-l-4 border-destructive bg-muted px-5 py-5"
+          role="alert"
+        >
           <p className="text-base font-medium text-destructive">{error}</p>
         </div>
       ) : null}
 
       <div>
         <label htmlFor="accessCode" className={labelClassName}>
-          Access code
+          {t("accessCode")}
         </label>
         <input
           id="accessCode"
           name="accessCode"
-          autoComplete="off"
+          autoComplete="username"
+          required
+          aria-invalid={Boolean(error)}
           value={accessCode}
           className={fieldClassName}
           onChange={(event) => setAccessCode(event.target.value)}
@@ -68,13 +91,15 @@ export function AdminLoginForm() {
 
       <div>
         <label htmlFor="password" className={labelClassName}>
-          Password
+          {t("password")}
         </label>
         <input
           id="password"
           name="password"
           type="password"
           autoComplete="current-password"
+          required
+          aria-invalid={Boolean(error)}
           value={password}
           className={fieldClassName}
           onChange={(event) => setPassword(event.target.value)}
@@ -87,8 +112,9 @@ export function AdminLoginForm() {
           size="lg"
           className="h-12 rounded-md px-6 text-base"
           disabled={submitting}
+          aria-busy={submitting}
         >
-          {submitting ? "Signing in…" : "Sign in"}
+          {submitting ? t("signingIn") : t("signIn")}
         </Button>
       </div>
     </form>

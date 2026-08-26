@@ -1,6 +1,6 @@
-import { Suspense } from "react";
 import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Suspense } from "react";
 
 import { TrackComplaintForm } from "./track-complaint-form";
 

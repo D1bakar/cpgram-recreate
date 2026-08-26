@@ -14,8 +14,14 @@ export default async function Home({ params }) {
     { title: t("steps.step2_title"), body: t("steps.step2_desc") },
     { title: t("steps.step3_title"), body: t("steps.step3_desc") },
     { title: t("steps.step4_title"), body: t("steps.step4_desc") },
-    { title: t("scope.includes_title"), body: t.raw("scope.includes").join(". ") },
-    { title: t("scope.excludes_title"), body: t.raw("scope.excludes").join(". ") },
+    {
+      title: t("scope.includes_title"),
+      body: t.raw("scope.includes").join(". "),
+    },
+    {
+      title: t("scope.excludes_title"),
+      body: t.raw("scope.excludes").join(". "),
+    },
   ];
 
   return (
@@ -38,7 +44,10 @@ export default async function Home({ params }) {
         <HomepageTrack />
 
         <section className="mt-12" aria-labelledby="popular-heading">
-          <h2 id="popular-heading" className="text-[24px] font-bold md:text-[36px]">
+          <h2
+            id="popular-heading"
+            className="text-[24px] font-bold md:text-[36px]"
+          >
             {t("popular.title")}
           </h2>
           <ul className="mt-5 space-y-3">
@@ -84,7 +93,10 @@ export default async function Home({ params }) {
         aria-labelledby="services-heading"
       >
         <div className="mx-auto w-full max-w-[960px] px-[15px] py-10 md:px-[30px] md:py-12">
-          <h2 id="services-heading" className="text-[24px] font-bold md:text-[36px]">
+          <h2
+            id="services-heading"
+            className="text-[24px] font-bold md:text-[36px]"
+          >
             {t("nav.services")}
           </h2>
           <ul className="mt-8 grid gap-x-8 gap-y-8 md:grid-cols-2">
