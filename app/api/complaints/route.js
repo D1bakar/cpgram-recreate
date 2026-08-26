@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 
+import {
+  MAX_ATTACHMENTS,
+  isAllowedAttachment,
+} from "@/lib/attachments";
+import { uploadComplaintFile } from "@/lib/cloudinary";
 import { connectDB } from "@/lib/db";
+import { sendComplaintRegisteredEmail } from "@/lib/mail";
 import { Complaint } from "@/lib/models/Complaint";
 
 function isMobile(value) {
@@ -19,20 +25,47 @@ function generateRegistrationNumber() {
   return `CPG-${year}-${random}`;
 }
 
+async function readComplaintInput(request) {
+  const contentType = request.headers.get("content-type") ?? "";
+
+  if (contentType.includes("multipart/form-data")) {
+    const form = await request.formData();
+    const files = form
+      .getAll("documents")
+      .filter((item) => item instanceof File && item.size > 0);
+    return {
+      fullName: String(form.get("fullName") ?? "").trim(),
+      mobile: String(form.get("mobile") ?? "").trim(),
+      email: String(form.get("email") ?? "").trim(),
+      department: String(form.get("department") ?? "").trim(),
+      subject: String(form.get("subject") ?? "").trim(),
+      details: String(form.get("details") ?? "").trim(),
+      files,
+    };
+  }
+
+  const body = await request.json();
+  return {
+    fullName: String(body?.fullName ?? "").trim(),
+    mobile: String(body?.mobile ?? "").trim(),
+    email: String(body?.email ?? "").trim(),
+    department: String(body?.department ?? "").trim(),
+    subject: String(body?.subject ?? "").trim(),
+    details: String(body?.details ?? "").trim(),
+    files: [],
+  };
+}
+
 export async function POST(request) {
-  let body;
+  let input;
   try {
-    body = await request.json();
+    input = await readComplaintInput(request);
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const fullName = String(body?.fullName ?? "").trim();
-  const mobile = String(body?.mobile ?? "").trim();
-  const email = String(body?.email ?? "").trim();
-  const department = String(body?.department ?? "").trim();
-  const subject = String(body?.subject ?? "").trim();
-  const details = String(body?.details ?? "").trim();
+  const { fullName, mobile, email, department, subject, details, files } =
+    input;
 
   const errors = {};
   if (!fullName) errors.fullName = "Enter your full name";
@@ -43,12 +76,22 @@ export async function POST(request) {
   if (!subject) errors.subject = "Enter a short summary";
   if (details.length < 20)
     errors.details = "Give more detail so the department can help you";
+  if (files.length > MAX_ATTACHMENTS) {
+    errors.documents = "You can attach up to 5 files";
+  } else if (files.some((file) => !isAllowedAttachment(file))) {
+    errors.documents = "Use PDF, JPG or PNG files of 5 MB or less";
+  }
 
   if (Object.keys(errors).length > 0) {
     return NextResponse.json({ errors }, { status: 400 });
   }
 
   try {
+    let attachments = [];
+    if (files.length > 0) {
+      attachments = await Promise.all(files.map(uploadComplaintFile));
+    }
+
     await connectDB();
     const registrationNumber = generateRegistrationNumber();
     const complaint = await Complaint.create({
@@ -59,18 +102,38 @@ export async function POST(request) {
       department,
       subject,
       details,
+      attachments,
       status: "Received",
       history: [{ status: "Received", note: "Complaint received" }],
     });
+    void sendComplaintRegisteredEmail({
+      to: email,
+      fullName,
+      registrationNumber: complaint.registrationNumber,
+    }).catch((mailError) => {
+      console.error(
+        "Complaint email failed:",
+        mailError?.name,
+        mailError?.message,
+      );
+    });
+
     return NextResponse.json(
       { registrationNumber: complaint.registrationNumber },
       { status: 201 },
     );
   } catch (error) {
+    console.error("Complaint.create failed:", error?.name, error?.message);
     if (error?.code === 11000) {
       return NextResponse.json(
         { error: "Could not register, please try again" },
         { status: 409 },
+      );
+    }
+    if (String(error?.message ?? "").includes("Cloudinary")) {
+      return NextResponse.json(
+        { error: "Could not upload documents" },
+        { status: 503 },
       );
     }
     return NextResponse.json(

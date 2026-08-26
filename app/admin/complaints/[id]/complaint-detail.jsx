@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { ComplaintAttachments } from "@/components/complaint-attachments";
 import { StatusTimeline } from "@/components/status-timeline";
 import { Button } from "@/components/ui/button";
 import { adminJson } from "@/lib/admin-fetch";
@@ -192,6 +193,14 @@ export function ComplaintDetail({ complaintId }) {
             {complaint.details}
           </dd>
         </div>
+        {complaint.attachments?.length ? (
+          <div>
+            <dt className="font-semibold">{t("attachments")}</dt>
+            <dd className="mt-3">
+              <ComplaintAttachments attachments={complaint.attachments} />
+            </dd>
+          </div>
+        ) : null}
       </dl>
 
       <section

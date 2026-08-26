@@ -115,9 +115,10 @@ export function FileComplaintForm() {
         continue;
       }
       merged.push({
-        id: `${file.name}-${file.size}-${file.lastModified}`,
+        id: `${file.name}-${file.size}-${file.lastModified}-${merged.length}`,
         name: file.name,
         size: file.size,
+        file,
       });
     }
 
@@ -147,27 +148,25 @@ export function FileComplaintForm() {
       const departmentLabel =
         DEPARTMENT_LABELS[values.department] ?? values.department;
       const categoryLabel = CATEGORY_LABELS[values.category] ?? values.category;
-      const payload = {
-        fullName: values.fullName.trim(),
-        mobile: values.mobile.trim().replaceAll(" ", ""),
-        email: values.email.trim(),
-        department: departmentLabel,
-        subject: values.subject.trim(),
-        details: [
-          `Category: ${categoryLabel}`,
-          values.details.trim(),
-          files.length
-            ? `Attached files (names only): ${files.map((f) => f.name).join(", ")}`
-            : null,
-        ]
+      const payload = new FormData();
+      payload.append("fullName", values.fullName.trim());
+      payload.append("mobile", values.mobile.trim().replaceAll(" ", ""));
+      payload.append("email", values.email.trim());
+      payload.append("department", departmentLabel);
+      payload.append("subject", values.subject.trim());
+      payload.append(
+        "details",
+        [`Category: ${categoryLabel}`, values.details.trim()]
           .filter(Boolean)
           .join("\n\n"),
-      };
+      );
+      for (const item of files) {
+        if (item.file) payload.append("documents", item.file, item.name);
+      }
 
       const response = await fetch("/api/complaints", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: payload,
       });
       const data = await readJson(response);
       if (response.ok && data?.registrationNumber) {
@@ -183,6 +182,7 @@ export function FileComplaintForm() {
           department: "department",
           subject: "subject",
           details: "detailsShort",
+          documents: "documentsType",
         };
         for (const field of Object.keys(data.errors)) {
           mapped[field] = fieldMap[field] ? tv(fieldMap[field]) : tv("generic");
@@ -194,6 +194,10 @@ export function FileComplaintForm() {
       }
       if (response.status === 409) {
         setApiError(t("conflict"));
+        return;
+      }
+      if (response.status === 503) {
+        setApiError(t("uploadError"));
         return;
       }
       setApiError(t("apiError"));
