@@ -8,10 +8,12 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
     ],
-    // required so next/image can serve the local SVG emblem
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
+  experimental: {
+    proxyClientMaxBodySize: "30mb",
   },
 };
 
