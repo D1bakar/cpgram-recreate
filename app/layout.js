@@ -26,9 +26,34 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://cpgram.usersynax.dev"),
   title: "CPGRAMS — File or track a government complaint",
   description:
     "File a complaint with a government department, or track a complaint you have already lodged. This service is free.",
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "CPGRAMS (Hackathon Prototype)",
+    title: "CPGRAMS — File or track a government complaint",
+    description:
+      "File a complaint with a government department, or track a complaint you have already lodged. This service is free.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "CPGRAMS Hackathon Prototype",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "",
+    title: "CPGRAMS — File or track a government complaint",
+    description:
+      "File a complaint with a government department, or track a complaint you have already lodged. This service is free.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default async function RootLayout({ children }) {

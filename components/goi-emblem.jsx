@@ -1,9 +1,11 @@
+import Image from "next/image";
+
 export function GoiEmblem({
   className = "h-10 w-auto",
   alt = "State Emblem of India",
 }) {
   return (
-    <img
+    <Image
       src="/emblem.svg"
       alt={alt}
       width={64}

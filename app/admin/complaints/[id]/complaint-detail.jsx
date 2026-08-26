@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-
 import { StatusTimeline } from "@/components/status-timeline";
 import { Button } from "@/components/ui/button";
 import { adminJson } from "@/lib/admin-fetch";
@@ -203,13 +203,14 @@ export function ComplaintDetail({ complaintId }) {
                       href={item.url}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="block overflow-hidden rounded-lg border border-border bg-card"
+                      className="relative block h-40 w-full overflow-hidden rounded-lg border border-border bg-card"
                     >
-                      <img
+                      <Image
                         src={item.url}
                         alt={item.name || t("attachments")}
-                        className="h-40 w-full object-cover"
+                        fill
                         loading="lazy"
+                        className="object-cover"
                       />
                     </a>
                     <a
@@ -225,7 +226,9 @@ export function ComplaintDetail({ complaintId }) {
                 ))}
               </ul>
             ) : (
-              <span className="text-muted-foreground">{t("noAttachments")}</span>
+              <span className="text-muted-foreground">
+                {t("noAttachments")}
+              </span>
             )}
           </dd>
         </div>

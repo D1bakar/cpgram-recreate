@@ -1,9 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-
 import { GrievanceTimeline } from "@/components/grievance-timeline";
 import { Button } from "@/components/ui/button";
 import {
@@ -298,13 +298,14 @@ export function TrackComplaintForm() {
                           href={item.url}
                           target="_blank"
                           rel="noreferrer noopener"
-                          className="block overflow-hidden rounded-lg border border-[#b1b4b6]"
+                          className="relative block h-32 w-full overflow-hidden rounded-lg border border-[#b1b4b6]"
                         >
-                          <img
+                          <Image
                             src={item.url}
                             alt={item.name || t("attachments")}
-                            className="h-32 w-full object-cover"
+                            fill
                             loading="lazy"
+                            className="object-cover"
                           />
                         </a>
                       </li>
