@@ -1,56 +1,75 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { StatusTimeline } from "@/components/status-timeline";
 import { Button } from "@/components/ui/button";
-
-import { adminFetch } from "@/lib/admin-fetch";
-
-const STATUSES = ["Received", "Under Review", "Resolved", "Rejected"];
+import { adminJson } from "@/lib/admin-fetch";
+import { STATUS_TRANSITIONS } from "@/lib/complaint-labels";
 
 function formatDate(value) {
-  return new Date(value).toLocaleString("en-IN", {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString("en-IN", {
     dateStyle: "medium",
     timeStyle: "short",
   });
 }
 
 export function ComplaintDetail({ complaintId }) {
+  const t = useTranslations("admin");
   const [complaint, setComplaint] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
+  const saveLock = useRef(false);
 
   const load = useCallback(async () => {
     try {
-      const response = await adminFetch(`/api/admin/complaints/${complaintId}`);
-      const data = await response.json();
+      const { response, data } = await adminJson(
+        `/api/admin/complaints/${complaintId}`,
+      );
       if (!response.ok) {
-        setError("Could not load complaint");
+        if (response.status === 404) {
+          setError(t("notFound"));
+        } else if (response.status === 403) {
+          setError(t("forbidden"));
+        } else {
+          setError(t("loadComplaintError"));
+        }
+        return;
+      }
+      if (!data?.complaint) {
+        setError(t("loadComplaintError"));
         return;
       }
       setComplaint(data.complaint);
       setStatus(data.complaint.status);
-    } catch {
-      setError("Could not load complaint");
+      setError("");
+    } catch (caught) {
+      if (caught?.code === 401) return;
+      setError(t("loadComplaintError"));
     } finally {
       setLoading(false);
     }
-  }, [complaintId]);
+  }, [complaintId, t]);
 
   useEffect(() => {
+    setLoading(true);
     load();
   }, [load]);
 
   async function handleUpdate(event) {
     event.preventDefault();
+    if (saveLock.current) return;
+    saveLock.current = true;
     setSaving(true);
     setError("");
     try {
-      const response = await adminFetch(
+      const { response, data } = await adminJson(
         `/api/admin/complaints/${complaintId}`,
         {
           method: "PATCH",
@@ -59,14 +78,28 @@ export function ComplaintDetail({ complaintId }) {
         },
       );
       if (!response.ok) {
-        setError("Could not update status");
+        if (response.status === 404) {
+          setError(t("notFound"));
+        } else if (typeof data?.error === "string" && data.error) {
+          setError(data.error);
+        } else {
+          setError(t("updateError"));
+        }
+        return;
+      }
+      if (data?.complaint) {
+        setComplaint(data.complaint);
+        setStatus(data.complaint.status);
+        setNote("");
         return;
       }
       setNote("");
       await load();
-    } catch {
-      setError("Could not update status");
+    } catch (caught) {
+      if (caught?.code === 401) return;
+      setError(t("updateError"));
     } finally {
+      saveLock.current = false;
       setSaving(false);
     }
   }
@@ -74,7 +107,9 @@ export function ComplaintDetail({ complaintId }) {
   if (loading) {
     return (
       <main id="main-content" className="px-4 py-10 sm:px-6 sm:py-14">
-        <p className="text-muted-foreground">Loading…</p>
+        <p className="text-muted-foreground" aria-live="polite">
+          {t("loading")}
+        </p>
       </main>
     );
   }
@@ -82,13 +117,20 @@ export function ComplaintDetail({ complaintId }) {
   if (error && !complaint) {
     return (
       <main id="main-content" className="px-4 py-10 sm:px-6 sm:py-14">
-        <p className="text-destructive">{error}</p>
+        <p className="text-destructive" role="alert">
+          {error}
+        </p>
         <a href="/admin" className="mt-4 inline-block underline">
-          Back to complaints
+          {t("back")}
         </a>
       </main>
     );
   }
+
+  const allowedStatuses = STATUS_TRANSITIONS[complaint.status] ?? [
+    complaint.status,
+  ];
+  const filedDate = formatDate(complaint.createdAt);
 
   return (
     <main
@@ -99,42 +141,54 @@ export function ComplaintDetail({ complaintId }) {
         href="/admin"
         className="text-sm font-medium underline-offset-4 hover:underline"
       >
-        ← Back to complaints
+        ← {t("back")}
       </a>
 
-      <h1 className="mt-4 text-3xl font-semibold tracking-tight text-pretty sm:text-4xl">
+      <h1 className="mt-4 break-all text-3xl font-semibold tracking-tight text-pretty sm:text-4xl">
         {complaint.registrationNumber}
       </h1>
-      <p className="mt-2 text-base text-muted-foreground">
-        Filed {formatDate(complaint.createdAt)}
-      </p>
+      {filedDate ? (
+        <p className="mt-2 text-base text-muted-foreground">
+          {t("filed", { date: filedDate })}
+        </p>
+      ) : null}
 
-      {error ? <p className="mt-6 text-destructive">{error}</p> : null}
+      {error ? (
+        <p className="mt-6 text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
 
       <dl className="mt-8 space-y-4 text-base">
         <div>
-          <dt className="font-semibold">Name</dt>
-          <dd className="mt-1 text-foreground">{complaint.fullName}</dd>
+          <dt className="font-semibold">{t("name")}</dt>
+          <dd className="mt-1 break-words text-foreground">
+            {complaint.fullName}
+          </dd>
         </div>
         <div>
-          <dt className="font-semibold">Mobile</dt>
+          <dt className="font-semibold">{t("mobile")}</dt>
           <dd className="mt-1 text-foreground">{complaint.mobile}</dd>
         </div>
         <div>
-          <dt className="font-semibold">Email</dt>
-          <dd className="mt-1 text-foreground">{complaint.email}</dd>
+          <dt className="font-semibold">{t("email")}</dt>
+          <dd className="mt-1 break-all text-foreground">{complaint.email}</dd>
         </div>
         <div>
-          <dt className="font-semibold">Department</dt>
-          <dd className="mt-1 text-foreground">{complaint.department}</dd>
+          <dt className="font-semibold">{t("department")}</dt>
+          <dd className="mt-1 break-words text-foreground">
+            {complaint.department}
+          </dd>
         </div>
         <div>
-          <dt className="font-semibold">Summary</dt>
-          <dd className="mt-1 text-foreground">{complaint.subject}</dd>
+          <dt className="font-semibold">{t("summary")}</dt>
+          <dd className="mt-1 break-words text-foreground">
+            {complaint.subject}
+          </dd>
         </div>
         <div>
-          <dt className="font-semibold">Details</dt>
-          <dd className="mt-1 whitespace-pre-wrap text-foreground">
+          <dt className="font-semibold">{t("details")}</dt>
+          <dd className="mt-1 whitespace-pre-wrap break-words text-foreground">
             {complaint.details}
           </dd>
         </div>
@@ -145,7 +199,7 @@ export function ComplaintDetail({ complaintId }) {
         aria-labelledby="history-heading"
       >
         <h2 id="history-heading" className="text-xl font-semibold">
-          Status timeline
+          {t("history")}
         </h2>
         <div className="mt-4">
           <StatusTimeline complaint={complaint} />
@@ -157,7 +211,7 @@ export function ComplaintDetail({ complaintId }) {
         aria-labelledby="update-heading"
       >
         <h2 id="update-heading" className="text-xl font-semibold">
-          Update status
+          {t("update")}
         </h2>
         <form onSubmit={handleUpdate} className="mt-4 space-y-6">
           <div>
@@ -165,7 +219,7 @@ export function ComplaintDetail({ complaintId }) {
               htmlFor="status"
               className="block text-sm font-medium text-foreground"
             >
-              New status
+              {t("newStatus")}
             </label>
             <select
               id="status"
@@ -173,7 +227,7 @@ export function ComplaintDetail({ complaintId }) {
               onChange={(event) => setStatus(event.target.value)}
               className="mt-2 block w-full rounded-md border border-border bg-background px-3 py-2 text-base"
             >
-              {STATUSES.map((option) => (
+              {allowedStatuses.map((option) => (
                 <option key={option} value={option}>
                   {option}
                 </option>
@@ -185,7 +239,7 @@ export function ComplaintDetail({ complaintId }) {
               htmlFor="note"
               className="block text-sm font-medium text-foreground"
             >
-              Note (optional)
+              {t("note")}
             </label>
             <textarea
               id="note"
@@ -196,8 +250,8 @@ export function ComplaintDetail({ complaintId }) {
             />
           </div>
           <div>
-            <Button type="submit" disabled={saving}>
-              {saving ? "Saving…" : "Update status"}
+            <Button type="submit" disabled={saving} aria-busy={saving}>
+              {saving ? t("saving") : t("save")}
             </Button>
           </div>
         </form>
