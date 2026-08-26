@@ -26,6 +26,20 @@ export default async function Home({ params }) {
 
   return (
     <main id="main-content" className="flex-1">
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD structured data is static and safe
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "CPGRAMS Hackathon Prototype",
+            url: `https://cpgram.usersynax.dev/${locale}`,
+            description: t("hero.subtitle"),
+            inLanguage: locale,
+          }),
+        }}
+      />
       <div className="mx-auto w-full max-w-[960px] px-[15px] py-10 md:px-[30px] md:py-12">
         <h1 className="max-w-[660px] text-[32px] font-bold leading-[1.09375] text-[#0b0c0c] md:text-[48px] md:leading-[1.04167]">
           {t("hero.title")}

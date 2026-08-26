@@ -1,10 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-
-import { ComplaintAttachments } from "@/components/complaint-attachments";
 import { GrievanceTimeline } from "@/components/grievance-timeline";
 import { Button } from "@/components/ui/button";
 import {
@@ -282,9 +281,36 @@ export function TrackComplaintForm() {
             ) : null}
             {complaint.details ? (
               <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[minmax(0,220px)_1fr] sm:gap-4">
-                <dt className="font-bold">{t("details")}</dt>
-                <dd className="mt-1 whitespace-pre-wrap break-words sm:mt-0">
+                <dt className="font-bold">{t("description")}</dt>
+                <dd className="mt-1 whitespace-pre-wrap break-words text-foreground sm:mt-0">
                   {complaint.details}
+                </dd>
+              </div>
+            ) : null}
+            {complaint.media?.length ? (
+              <div className="border-b border-[#b1b4b6] py-4 sm:grid sm:grid-cols-[minmax(0,220px)_1fr] sm:gap-4">
+                <dt className="font-bold">{t("attachments")}</dt>
+                <dd className="mt-1 sm:mt-0">
+                  <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {complaint.media.map((item) => (
+                      <li key={item.url}>
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="relative block h-32 w-full overflow-hidden rounded-lg border border-[#b1b4b6]"
+                        >
+                          <Image
+                            src={item.url}
+                            alt={item.name || t("attachments")}
+                            fill
+                            loading="lazy"
+                            className="object-cover"
+                          />
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
                 </dd>
               </div>
             ) : null}
@@ -295,15 +321,6 @@ export function TrackComplaintForm() {
               </div>
             ) : null}
           </dl>
-
-          {complaint.attachments?.length ? (
-            <div className="mt-10">
-              <ComplaintAttachments
-                attachments={complaint.attachments}
-                title={t("attachments")}
-              />
-            </div>
-          ) : null}
 
           <h3 className="mt-10 text-[19px] font-bold">{t("latestResponse")}</h3>
           <p className="mt-3 text-[19px] leading-[1.315] break-words">

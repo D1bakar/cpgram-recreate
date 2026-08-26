@@ -22,6 +22,10 @@ export async function SiteFooter() {
           </div>
           <p className="mt-4 text-[16px] leading-6">{t("footer.about")}</p>
           <p className="mt-2 text-[16px] leading-6">{t("footer.help")}</p>
+          <p className="mt-3 border-t border-[#c5d5cc] pt-3 text-[14px] leading-6 text-[#1b4332]/80">
+            Independent hackathon prototype. Not affiliated with or endorsed by
+            the Government of India. All complaint data is mock data.
+          </p>
         </div>
         <nav aria-label={t("footer.support")} className="flex flex-col gap-3">
           <Link

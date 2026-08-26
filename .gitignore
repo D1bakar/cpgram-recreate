@@ -17,6 +17,12 @@
 /.next/
 /out/
 
+# locally stored complaint uploads (when Cloudinary is not configured)
+/public/uploads/
+
+# dev-mode email log (when SMTP is not configured)
+/email-dev.log
+
 # production
 /build
 

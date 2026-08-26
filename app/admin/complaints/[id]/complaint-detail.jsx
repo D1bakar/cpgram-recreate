@@ -1,9 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-
-import { ComplaintAttachments } from "@/components/complaint-attachments";
 import { StatusTimeline } from "@/components/status-timeline";
 import { Button } from "@/components/ui/button";
 import { adminJson } from "@/lib/admin-fetch";
@@ -193,14 +192,46 @@ export function ComplaintDetail({ complaintId }) {
             {complaint.details}
           </dd>
         </div>
-        {complaint.attachments?.length ? (
-          <div>
-            <dt className="font-semibold">{t("attachments")}</dt>
-            <dd className="mt-3">
-              <ComplaintAttachments attachments={complaint.attachments} />
-            </dd>
-          </div>
-        ) : null}
+        <div>
+          <dt className="font-semibold">{t("attachments")}</dt>
+          <dd className="mt-1 text-foreground">
+            {complaint.media?.length ? (
+              <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                {complaint.media.map((item) => (
+                  <li key={item.url} className="flex flex-col gap-2">
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="relative block h-40 w-full overflow-hidden rounded-lg border border-border bg-card"
+                    >
+                      <Image
+                        src={item.url}
+                        alt={item.name || t("attachments")}
+                        fill
+                        loading="lazy"
+                        className="object-cover"
+                      />
+                    </a>
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="truncate text-sm font-medium underline-offset-4 hover:underline"
+                      title={item.name}
+                    >
+                      {item.name || item.url}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <span className="text-muted-foreground">
+                {t("noAttachments")}
+              </span>
+            )}
+          </dd>
+        </div>
       </dl>
 
       <section

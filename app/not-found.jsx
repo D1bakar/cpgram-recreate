@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
+export const metadata = {
+  title: "Page not found — CPGRAMS",
+  robots: { index: false, follow: false },
+};
+
 export default async function NotFound() {
   const locale = await getLocale();
   const t = await getTranslations("errors");

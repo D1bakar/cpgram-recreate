@@ -45,8 +45,19 @@ const emptyForm = {
 };
 
 const MAX_FILES = 5;
-const MAX_FILE_BYTES = 5 * 1024 * 1024;
-const ALLOWED_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_TYPES = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+  "image/gif",
+  "image/bmp",
+  "image/avif",
+  "image/heic",
+  "image/heif",
+  "image/tiff",
+]);
 
 function isValidMobile(value) {
   return /^[6-9]\d{9}$/.test(value.replaceAll(" ", ""));
@@ -115,7 +126,7 @@ export function FileComplaintForm() {
         continue;
       }
       merged.push({
-        id: `${file.name}-${file.size}-${file.lastModified}-${merged.length}`,
+        id: `${file.name}-${file.size}-${file.lastModified}`,
         name: file.name,
         size: file.size,
         file,
@@ -145,28 +156,56 @@ export function FileComplaintForm() {
     setSubmitting(true);
     setApiError("");
     try {
+      let media = [];
+      if (files.length) {
+        try {
+          media = await Promise.all(
+            files.map(async (entry) => {
+              const form = new FormData();
+              form.append("file", entry.file);
+              const res = await fetch("/api/upload", { method: "POST", body: form });
+              const data = await readJson(res);
+              if (!res.ok || !data?.media) {
+                throw new Error(data?.error || t("uploadError"));
+              }
+              return {
+                url: data.media.url,
+                publicId: data.media.publicId,
+                name: data.media.name,
+                bytes: data.media.bytes,
+                type: data.media.type,
+              };
+            }),
+          );
+        } catch (uploadError) {
+          setApiError(
+            uploadError instanceof Error ? uploadError.message : t("uploadError"),
+          );
+          setSubmitting(false);
+          submitLock.current = false;
+          return;
+        }
+      }
+
       const departmentLabel =
         DEPARTMENT_LABELS[values.department] ?? values.department;
       const categoryLabel = CATEGORY_LABELS[values.category] ?? values.category;
-      const payload = new FormData();
-      payload.append("fullName", values.fullName.trim());
-      payload.append("mobile", values.mobile.trim().replaceAll(" ", ""));
-      payload.append("email", values.email.trim());
-      payload.append("department", departmentLabel);
-      payload.append("subject", values.subject.trim());
-      payload.append(
-        "details",
-        [`Category: ${categoryLabel}`, values.details.trim()]
+      const payload = {
+        fullName: values.fullName.trim(),
+        mobile: values.mobile.trim().replaceAll(" ", ""),
+        email: values.email.trim(),
+        department: departmentLabel,
+        subject: values.subject.trim(),
+        details: [`Category: ${categoryLabel}`, values.details.trim()]
           .filter(Boolean)
           .join("\n\n"),
-      );
-      for (const item of files) {
-        if (item.file) payload.append("documents", item.file, item.name);
-      }
+        media,
+      };
 
       const response = await fetch("/api/complaints", {
         method: "POST",
-        body: payload,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
       const data = await readJson(response);
       if (response.ok && data?.registrationNumber) {
@@ -182,7 +221,6 @@ export function FileComplaintForm() {
           department: "department",
           subject: "subject",
           details: "detailsShort",
-          documents: "documentsType",
         };
         for (const field of Object.keys(data.errors)) {
           mapped[field] = fieldMap[field] ? tv(fieldMap[field]) : tv("generic");
@@ -194,10 +232,6 @@ export function FileComplaintForm() {
       }
       if (response.status === 409) {
         setApiError(t("conflict"));
-        return;
-      }
-      if (response.status === 503) {
-        setApiError(t("uploadError"));
         return;
       }
       setApiError(t("apiError"));
@@ -587,7 +621,7 @@ export function FileComplaintForm() {
               name="documents"
               type="file"
               multiple
-              accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+              accept="image/png,image/jpeg,image/jpg,image/webp,image/gif,image/bmp,image/avif,image/heic,image/heif,image/tiff"
               aria-describedby={
                 errors.documents
                   ? "documents-hint documents-error"
