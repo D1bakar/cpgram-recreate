@@ -1,6 +1,4 @@
-import type { MetadataRoute } from "next";
-
-export default function robots(): MetadataRoute.Robots {
+export default function robots() {
   return {
     rules: {
       // Disallow everything — this is a hackathon mock, not the real CPGRAMS.
