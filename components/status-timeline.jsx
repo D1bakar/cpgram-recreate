@@ -126,6 +126,7 @@ export function StatusTimeline({ complaint }) {
       <div
         className="mb-7 h-1.5 w-full overflow-hidden rounded-full bg-muted"
         role="progressbar"
+        aria-label="Service level progress"
         aria-valuenow={percent}
         aria-valuemin={0}
         aria-valuemax={100}

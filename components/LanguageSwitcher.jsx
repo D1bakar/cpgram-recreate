@@ -1,7 +1,7 @@
 "use client";
 
-import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 
 export default function LanguageSwitcher({ inverted = false }) {
   const locale = useLocale();
@@ -10,12 +10,15 @@ export default function LanguageSwitcher({ inverted = false }) {
 
   const changeLanguage = (newLocale) => {
     const segments = pathname.split("/");
+    let nextPath;
     if (segments[1] === "en" || segments[1] === "hi") {
       segments[1] = newLocale;
-      router.push(segments.join("/") || `/${newLocale}`);
+      nextPath = segments.join("/") || `/${newLocale}`;
     } else {
-      router.push(`/${newLocale}`);
+      nextPath = `/${newLocale}`;
     }
+    const search = window.location.search;
+    router.push(`${nextPath}${search}`);
     router.refresh();
   };
 

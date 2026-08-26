@@ -1,16 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useId, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { CATEGORY_LABELS, DEPARTMENT_LABELS } from "@/lib/complaint-labels";
 import {
   errorClassName,
   fieldClassName,
   hintClassName,
   labelClassName,
 } from "@/lib/form-styles";
+import { readJson } from "@/lib/read-json";
 
 const CATEGORY_KEYS = [
   "service_delay",
@@ -44,11 +46,7 @@ const emptyForm = {
 
 const MAX_FILES = 5;
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
-const ALLOWED_TYPES = new Set([
-  "application/pdf",
-  "image/jpeg",
-  "image/png",
-]);
+const ALLOWED_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
 
 function isValidMobile(value) {
   return /^[6-9]\d{9}$/.test(value.replaceAll(" ", ""));
@@ -70,6 +68,7 @@ export function FileComplaintForm() {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [apiError, setApiError] = useState("");
+  const submitLock = useRef(false);
 
   function update(field, value) {
     setValues((current) => ({ ...current, [field]: value }));
@@ -140,14 +139,17 @@ export function FileComplaintForm() {
   }
 
   async function handleSubmitComplaint() {
+    if (submitLock.current) return;
+    submitLock.current = true;
     setSubmitting(true);
     setApiError("");
     try {
-      const departmentLabel = t(`departments.${values.department}`);
-      const categoryLabel = t(`categories.${values.category}`);
+      const departmentLabel =
+        DEPARTMENT_LABELS[values.department] ?? values.department;
+      const categoryLabel = CATEGORY_LABELS[values.category] ?? values.category;
       const payload = {
         fullName: values.fullName.trim(),
-        mobile: values.mobile.trim(),
+        mobile: values.mobile.trim().replaceAll(" ", ""),
         email: values.email.trim(),
         department: departmentLabel,
         subject: values.subject.trim(),
@@ -167,21 +169,38 @@ export function FileComplaintForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await response.json();
-      if (response.ok) {
+      const data = await readJson(response);
+      if (response.ok && data?.registrationNumber) {
         setResult({ registrationNumber: data.registrationNumber });
         return;
       }
-      if (data?.errors) {
-        setErrors(data.errors);
+      if (data?.errors && typeof data.errors === "object") {
+        const mapped = {};
+        const fieldMap = {
+          fullName: "fullName",
+          mobile: "mobileInvalid",
+          email: "emailInvalid",
+          department: "department",
+          subject: "subject",
+          details: "detailsShort",
+        };
+        for (const field of Object.keys(data.errors)) {
+          mapped[field] = fieldMap[field] ? tv(fieldMap[field]) : tv("generic");
+        }
+        setErrors(mapped);
         setSubmitted(false);
         document.getElementById(errorSummaryId)?.focus();
+        return;
+      }
+      if (response.status === 409) {
+        setApiError(t("conflict"));
         return;
       }
       setApiError(t("apiError"));
     } catch {
       setApiError(t("apiError"));
     } finally {
+      submitLock.current = false;
       setSubmitting(false);
     }
   }
@@ -204,7 +223,9 @@ export function FileComplaintForm() {
   if (result) {
     return (
       <div>
-        <p className="mb-6 font-mono text-sm text-muted-foreground">{stepLabel}</p>
+        <p className="mb-6 font-mono text-sm text-muted-foreground">
+          {stepLabel}
+        </p>
         <div className="border border-[#b1b4b6] bg-card p-6">
           <h2 className="text-[24px] font-bold">{t("successTitle")}</h2>
           <p className="mt-2 text-base leading-7 text-foreground">
@@ -213,7 +234,10 @@ export function FileComplaintForm() {
           <p className="mt-6 font-mono text-sm text-muted-foreground">
             {t("successLabel")}
           </p>
-          <p className="mt-2 text-2xl font-semibold tracking-tight">
+          <p
+            className="mt-2 text-2xl font-semibold tracking-tight"
+            aria-live="polite"
+          >
             {result.registrationNumber}
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -249,7 +273,9 @@ export function FileComplaintForm() {
   if (submitted) {
     return (
       <div>
-        <p className="mb-6 font-mono text-sm text-muted-foreground">{stepLabel}</p>
+        <p className="mb-6 font-mono text-sm text-muted-foreground">
+          {stepLabel}
+        </p>
         <div className="border border-[#b1b4b6] bg-card p-6">
           <h2 className="text-[24px] font-bold">{t("reviewTitle")}</h2>
           <p className="mt-2 text-base leading-7 text-foreground">
@@ -280,7 +306,10 @@ export function FileComplaintForm() {
             ))}
           </dl>
           {apiError ? (
-            <p className="mt-6 text-base font-medium text-destructive">
+            <p
+              className="mt-6 text-base font-medium text-destructive"
+              role="alert"
+            >
               {apiError}
             </p>
           ) : null}
@@ -290,6 +319,7 @@ export function FileComplaintForm() {
               size="lg"
               className="h-12 px-6 text-base"
               disabled={submitting}
+              aria-busy={submitting}
               onClick={handleSubmitComplaint}
             >
               {submitting ? t("submitting") : t("submit")}
@@ -314,12 +344,15 @@ export function FileComplaintForm() {
 
   return (
     <div>
-      <p className="mb-6 font-mono text-sm text-muted-foreground">{stepLabel}</p>
+      <p className="mb-6 font-mono text-sm text-muted-foreground">
+        {stepLabel}
+      </p>
       <form onSubmit={handleContinue} noValidate>
         {errorList.length > 0 ? (
           <div
             id={errorSummaryId}
             tabIndex={-1}
+            role="alert"
             className="mb-8 border-l-8 border-[#d4351c] bg-[#f3f2f1] px-5 py-5 outline-none"
           >
             <h2 className="text-lg font-semibold text-destructive">
@@ -349,6 +382,7 @@ export function FileComplaintForm() {
               id="fullName"
               name="fullName"
               autoComplete="name"
+              required
               value={values.fullName}
               aria-invalid={Boolean(errors.fullName)}
               aria-describedby={errors.fullName ? "fullName-error" : undefined}
@@ -375,6 +409,7 @@ export function FileComplaintForm() {
               type="tel"
               inputMode="numeric"
               autoComplete="tel-national"
+              required
               value={values.mobile}
               aria-invalid={Boolean(errors.mobile)}
               aria-describedby={
@@ -399,6 +434,7 @@ export function FileComplaintForm() {
               name="email"
               type="email"
               autoComplete="email"
+              required
               value={values.email}
               aria-invalid={Boolean(errors.email)}
               aria-describedby={errors.email ? "email-error" : undefined}
@@ -422,6 +458,7 @@ export function FileComplaintForm() {
             <select
               id="category"
               name="category"
+              required
               value={values.category}
               aria-invalid={Boolean(errors.category)}
               aria-describedby={
@@ -456,6 +493,7 @@ export function FileComplaintForm() {
             <select
               id="department"
               name="department"
+              required
               value={values.department}
               aria-invalid={Boolean(errors.department)}
               aria-describedby={
@@ -490,6 +528,7 @@ export function FileComplaintForm() {
             <input
               id="subject"
               name="subject"
+              required
               value={values.subject}
               aria-invalid={Boolean(errors.subject)}
               aria-describedby={
@@ -516,6 +555,7 @@ export function FileComplaintForm() {
               id="details"
               name="details"
               rows={8}
+              required
               value={values.details}
               aria-invalid={Boolean(errors.details)}
               aria-describedby={
@@ -549,7 +589,7 @@ export function FileComplaintForm() {
                   ? "documents-hint documents-error"
                   : "documents-hint"
               }
-              className="mt-2 block w-full text-sm text-foreground file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-foreground"
+              className="mt-2 block w-full min-w-0 text-sm text-foreground file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-foreground"
               onChange={handleFiles}
             />
             {files.length ? (

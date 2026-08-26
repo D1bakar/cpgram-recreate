@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useRef, useState } from "react";
 
 import { GoiEmblem } from "@/components/goi-emblem";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -14,6 +14,7 @@ export function SiteHeader() {
   const t = useTranslations("nav");
   const brand = useTranslations("brand");
   const [open, setOpen] = useState(false);
+  const rootRef = useRef(null);
 
   const links = [
     { href: `/${locale}/file-complaint`, label: t("fileComplaint") },
@@ -23,15 +24,48 @@ export function SiteHeader() {
     { href: "/admin", label: t("admin") },
   ];
 
+  useEffect(() => {
+    if (pathname) {
+      setOpen(false);
+    }
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    function onKeyDown(event) {
+      if (event.key === "Escape") setOpen(false);
+    }
+
+    function onPointerDown(event) {
+      if (!rootRef.current?.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, [open]);
+
   return (
-    <header className="border-b border-[#c5d5cc] bg-[#eaf2ee] text-[#1b4332]">
+    <header
+      ref={rootRef}
+      className="border-b border-[#c5d5cc] bg-[#eaf2ee] text-[#1b4332]"
+    >
       <div className="mx-auto flex w-full max-w-[960px] items-center justify-between gap-4 px-[15px] py-3 md:px-[30px]">
         <Link
           href={`/${locale}`}
           className="flex items-center gap-3 outline-none focus-visible:ring-[3px] focus-visible:ring-[#ffdd00]"
         >
           <span className="inline-flex items-center justify-center bg-white p-1.5 shadow-sm">
-            <GoiEmblem className="h-14 w-auto sm:h-16" alt={brand("emblemAlt")} />
+            <GoiEmblem
+              className="h-14 w-auto sm:h-16"
+              alt={brand("emblemAlt")}
+            />
           </span>
           <span className="font-bold text-[24px] leading-none tracking-tight text-[#1b4332] sm:text-[30px]">
             CPGRAMS
@@ -44,9 +78,12 @@ export function SiteHeader() {
             type="button"
             aria-expanded={open}
             aria-controls="govuk-menu"
+            aria-haspopup="true"
             onClick={() => setOpen((v) => !v)}
             className={`inline-flex items-center gap-2 border border-[#1b4332] px-3 py-2 text-[19px] font-bold outline-none focus-visible:ring-[3px] focus-visible:ring-[#ffdd00] ${
-              open ? "relative z-20 border-b-0 bg-white text-[#1b4332]" : "bg-transparent text-[#1b4332]"
+              open
+                ? "relative z-20 border-b-0 bg-white text-[#1b4332]"
+                : "bg-transparent text-[#1b4332]"
             }`}
           >
             {t("menu")}
@@ -60,7 +97,10 @@ export function SiteHeader() {
       </div>
 
       {open ? (
-        <div id="govuk-menu" className="motion-safe:animate-reveal border-b border-[#c5d5cc] bg-white text-[#0b0c0c]">
+        <div
+          id="govuk-menu"
+          className="motion-safe:animate-reveal border-b border-[#c5d5cc] bg-white text-[#0b0c0c]"
+        >
           <nav
             aria-label={t("menu")}
             className="mx-auto grid w-full max-w-[960px] gap-8 px-[15px] py-8 md:grid-cols-2 md:px-[30px]"

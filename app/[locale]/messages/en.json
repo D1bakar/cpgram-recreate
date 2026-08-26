@@ -21,7 +21,8 @@
     "cta": "File a complaint",
     "track": "Track",
     "trackLabel": "Track a complaint",
-    "trackHint": "Enter your registration number, for example CPG-2026-AB12CD"
+    "trackHint": "Enter your registration number, for example CPG-2026-AB12CD",
+    "trackEmpty": "Enter your registration number"
   },
   "popular": {
     "title": "Popular on CPGRAMS",
@@ -151,7 +152,8 @@
     "labelDetails": "Details",
     "labelDocuments": "Documents",
     "errorTitle": "There is a problem",
-    "apiError": "Something went wrong. Please try again."
+    "apiError": "Something went wrong. Please try again.",
+    "conflict": "Could not register this complaint. Please try again."
   },
   "track": {
     "eyebrow": "Track a complaint",
@@ -202,5 +204,54 @@
     "documentsTooMany": "You can attach up to 5 files",
     "documentsTooLarge": "Each file must be 5 MB or smaller",
     "documentsType": "Use PDF, JPG or PNG files only"
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "body": "The page could not be loaded. You can try again, or go back to the homepage.",
+    "retry": "Try again",
+    "home": "Go to the homepage",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "If you typed the web address, check it is correct."
+  },
+  "admin": {
+    "loginTitle": "Admin sign in",
+    "loginIntro": "This area is for authorised staff only.",
+    "accessCode": "Access code",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "invalidCredentials": "Invalid access code or password",
+    "loginFailed": "Something went wrong. Please try again.",
+    "accessCodeRequired": "Enter your access code",
+    "passwordRequired": "Enter your password",
+    "complaintsTitle": "Complaints",
+    "signOut": "Sign out",
+    "loading": "Loading…",
+    "loadError": "Could not load complaints",
+    "empty": "No complaints yet.",
+    "retry": "Try again",
+    "colRegistration": "Registration",
+    "colName": "Name",
+    "colDepartment": "Department",
+    "colStatus": "Status",
+    "colFiled": "Filed",
+    "back": "Back to complaints",
+    "filed": "Filed {date}",
+    "name": "Name",
+    "mobile": "Mobile",
+    "email": "Email",
+    "department": "Department",
+    "summary": "Summary",
+    "details": "Details",
+    "history": "Status timeline",
+    "update": "Update status",
+    "newStatus": "New status",
+    "note": "Note (optional)",
+    "save": "Update status",
+    "saving": "Saving…",
+    "loadComplaintError": "Could not load complaint",
+    "notFound": "No complaint was found with that address.",
+    "updateError": "Could not update status",
+    "forbidden": "You do not have permission to do that."
   }
 }
