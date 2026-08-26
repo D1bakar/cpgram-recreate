@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { connectDB } from "@/lib/db";
+import { sendEmail, renderEmailHtml } from "@/lib/email";
 import { COMPLAINT_STATUSES, Complaint } from "@/lib/models/Complaint";
 import { SESSION_COOKIE, verifySession } from "@/lib/session";
 
@@ -50,7 +51,7 @@ export async function PATCH(request, { params }) {
   }
 
   const allowed = {
-    Received: ["Under Review"],
+    Received: ["Under Review", "Resolved", "Rejected"],
     "Under Review": ["Resolved", "Rejected"],
     Resolved: [],
     Rejected: [],
@@ -68,6 +69,57 @@ export async function PATCH(request, { params }) {
   complaint.status = status;
   complaint.history.push({ status, note });
   await complaint.save();
+
+  const statusChanged = status !== from;
+  if (statusChanged || note.trim()) {
+    const origin = (() => {
+      try {
+        return new URL(request.url).origin;
+      } catch {
+        return process.env.APP_URL || "";
+      }
+    })();
+    try {
+      const trackUrl = origin
+        ? `${origin}/track?ref=${encodeURIComponent(complaint.registrationNumber)}`
+        : null;
+      const fields = [["Reference number", complaint.registrationNumber]];
+      if (note.trim()) fields.push(["Note from department", note.trim()]);
+      await sendEmail({
+        to: complaint.email,
+        subject: `Update on your grievance ${complaint.registrationNumber}: ${status}`,
+        text: [
+          `Dear ${complaint.fullName},`,
+          "",
+          `Your grievance ${complaint.registrationNumber} has been updated.`,
+          `New status: ${status}`,
+          note.trim() ? `Note from the department: ${note.trim()}` : "",
+          "",
+          trackUrl
+            ? `Track it here: ${trackUrl}`
+            : `Use your reference number to track this complaint.`,
+          "",
+          "Regards,",
+          "CPGRAMS Team",
+        ]
+          .filter(Boolean)
+          .join("\n"),
+        html: renderEmailHtml({
+          preheader: `Your grievance ${complaint.registrationNumber} is now ${status}.`,
+          heading: "Status updated",
+          greeting: `Dear ${complaint.fullName},`,
+          message: `Your grievance ${complaint.registrationNumber} has been updated.`,
+          badge: status,
+          fields,
+          cta: trackUrl
+            ? { href: trackUrl, text: "Track your complaint" }
+            : null,
+        }),
+      });
+    } catch (emailError) {
+      console.error("Failed to send status update email:", emailError);
+    }
+  }
 
   return NextResponse.json({ complaint });
 }

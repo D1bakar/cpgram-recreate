@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { connectDB } from "@/lib/db";
+import { sendEmail, renderEmailHtml } from "@/lib/email";
 import { Complaint } from "@/lib/models/Complaint";
 
 function isMobile(value) {
@@ -33,6 +34,20 @@ export async function POST(request) {
   const department = String(body?.department ?? "").trim();
   const subject = String(body?.subject ?? "").trim();
   const details = String(body?.details ?? "").trim();
+  const rawMedia = Array.isArray(body?.media) ? body.media : [];
+  const media = rawMedia
+    .filter(
+      (item) =>
+        item && typeof item.url === "string" && item.url.trim().length > 0,
+    )
+    .slice(0, 10)
+    .map((item) => ({
+      url: String(item.url).trim(),
+      publicId: item.publicId ? String(item.publicId) : null,
+      name: item.name ? String(item.name) : "",
+      bytes: Number.isFinite(item.bytes) ? item.bytes : 0,
+      type: item.type ? String(item.type) : "",
+    }));
 
   const errors = {};
   if (!fullName) errors.fullName = "Enter your full name";
@@ -59,9 +74,59 @@ export async function POST(request) {
       department,
       subject,
       details,
+      media,
       status: "Received",
       history: [{ status: "Received", note: "Complaint received" }],
     });
+
+    const origin = (() => {
+      try {
+        return new URL(request.url).origin;
+      } catch {
+        return process.env.APP_URL || "";
+      }
+    })();
+    try {
+      const trackUrl = origin
+        ? `${origin}/track?ref=${encodeURIComponent(registrationNumber)}`
+        : null;
+      await sendEmail({
+        to: complaint.email,
+        subject: `Grievance registered: ${registrationNumber}`,
+        text: [
+          `Dear ${complaint.fullName},`,
+          "",
+          `Your grievance has been registered with reference number ${registrationNumber}.`,
+          `Department: ${complaint.department}`,
+          `Subject: ${complaint.subject}`,
+          "",
+          trackUrl
+            ? `Track it here: ${trackUrl}`
+            : `Keep this reference number safe to track your complaint.`,
+          "",
+          "Regards,",
+          "CPGRAMS Team",
+        ].join("\n"),
+        html: renderEmailHtml({
+          preheader: `Your grievance ${registrationNumber} has been registered.`,
+          heading: "Grievance registered",
+          greeting: `Dear ${complaint.fullName},`,
+          message:
+            "Your grievance has been registered successfully. Keep your reference number safe — you can track its progress any time using the link below.",
+          fields: [
+            ["Reference number", registrationNumber],
+            ["Department", complaint.department],
+            ["Subject", complaint.subject],
+          ],
+          cta: trackUrl
+            ? { href: trackUrl, text: "Track your complaint" }
+            : null,
+        }),
+      });
+    } catch (emailError) {
+      console.error("Failed to send complaint confirmation email:", emailError);
+    }
+
     return NextResponse.json(
       { registrationNumber: complaint.registrationNumber },
       { status: 201 },

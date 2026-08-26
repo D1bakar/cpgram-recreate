@@ -5,6 +5,7 @@ import { AdminLoginForm } from "./login-form";
 export const metadata = {
   title: "Admin sign in — CPGRAMS",
   description: "Restricted area. Sign in to manage complaints.",
+  robots: { index: false, follow: false },
 };
 
 export default async function AdminLoginPage() {

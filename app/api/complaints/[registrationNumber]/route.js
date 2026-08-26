@@ -21,7 +21,7 @@ export async function GET(request, { params }) {
     registrationNumber: normalized,
   })
     .select(
-      "registrationNumber department subject status createdAt updatedAt history",
+      "registrationNumber department subject status createdAt updatedAt history media details",
     )
     .lean();
 
