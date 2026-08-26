@@ -28,6 +28,9 @@ const plexMono = IBM_Plex_Mono({
 export const metadata = {
   metadataBase: new URL("https://cpgram.usersynax.dev"),
   title: "CPGRAMS — File or track a government complaint",
+  verification: {
+    google: "mtSQQTLUoP5DvYa7RCE6CnrEoUYfmWX0FdkkYzDO8Po",
+  },
   description:
     "File a complaint with a government department, or track a complaint you have already lodged. This service is free.",
   openGraph: {
