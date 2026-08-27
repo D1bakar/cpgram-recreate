@@ -52,6 +52,13 @@ export function TrackComplaintForm() {
   const [complaint, setComplaint] = useState(null);
   const requestId = useRef(0);
 
+  const [step, setStep] = useState("request");
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const cooldownTimer = useRef(null);
+
   function statusLabel(status) {
     const map = {
       Received: t("statuses.Received"),
@@ -75,42 +82,48 @@ export function TrackComplaintForm() {
     }
   }
 
-  const lookup = useCallback(
-    async (number, signal) => {
+  const startCooldown = useCallback(() => {
+    setCooldown(30);
+    if (cooldownTimer.current) clearInterval(cooldownTimer.current);
+    cooldownTimer.current = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(cooldownTimer.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, []);
+
+  const requestCode = useCallback(
+    async (number) => {
       const id = ++requestId.current;
       setError("");
+      setOtpError("");
       setLoading(true);
       setComplaint(null);
 
       try {
-        const response = await fetch(
-          `/api/complaints/${encodeURIComponent(number.trim().toUpperCase())}`,
-          { signal },
-        );
+        const response = await fetch(`/api/track/request-otp`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            registrationNumber: number.trim().toUpperCase(),
+          }),
+        });
         if (id !== requestId.current) return;
-        const data = await readJson(response);
+        await readJson(response);
 
         if (!response.ok) {
-          const message =
-            response.status === 404
-              ? tv("notFound")
-              : response.status === 400
-                ? tv("registrationInvalid")
-                : tv("generic");
-          setError(message);
+          setError(response.status === 429 ? t("otpCooldown") : tv("generic"));
           document.getElementById(errorSummaryId)?.focus();
           return;
         }
 
-        if (!data?.complaint) {
-          setError(tv("generic"));
-          document.getElementById(errorSummaryId)?.focus();
-          return;
-        }
-
-        setComplaint(data.complaint);
-      } catch (caught) {
-        if (caught?.name === "AbortError") return;
+        setStep("verify");
+        startCooldown();
+      } catch {
         if (id !== requestId.current) return;
         setError(tv("generic"));
         document.getElementById(errorSummaryId)?.focus();
@@ -120,8 +133,58 @@ export function TrackComplaintForm() {
         }
       }
     },
-    [errorSummaryId, tv],
+    [errorSummaryId, t, tv, startCooldown],
   );
+
+  const verifyCode = useCallback(
+    async (number, code) => {
+      const id = ++requestId.current;
+      setOtpError("");
+      setOtpLoading(true);
+
+      try {
+        const response = await fetch(`/api/track/verify-otp`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            registrationNumber: number.trim().toUpperCase(),
+            otp: code.trim(),
+          }),
+        });
+        if (id !== requestId.current) return;
+        const data = await readJson(response);
+
+        if (!response.ok) {
+          setOtpError(
+            response.status === 429 ? t("otpTooMany") : tv("otpInvalid"),
+          );
+          return;
+        }
+
+        if (!data?.complaint) {
+          setOtpError(tv("generic"));
+          return;
+        }
+
+        setComplaint(data.complaint);
+        setStep("done");
+      } catch {
+        if (id !== requestId.current) return;
+        setOtpError(tv("generic"));
+      } finally {
+        if (id === requestId.current) {
+          setOtpLoading(false);
+        }
+      }
+    },
+    [t, tv],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (cooldownTimer.current) clearInterval(cooldownTimer.current);
+    };
+  }, []);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -140,7 +203,32 @@ export function TrackComplaintForm() {
       return;
     }
 
-    await lookup(registrationNumber);
+    await requestCode(registrationNumber);
+  }
+
+  async function handleVerify(event) {
+    event.preventDefault();
+    if (!/^\d{6}$/.test(otp.trim())) {
+      setOtpError(tv("otpFormat"));
+      return;
+    }
+    await verifyCode(registrationNumber, otp);
+  }
+
+  function handleResend() {
+    if (cooldown > 0 || loading) return;
+    setOtp("");
+    setOtpError("");
+    requestCode(registrationNumber);
+  }
+
+  function backToRequest() {
+    setStep("request");
+    setOtp("");
+    setOtpError("");
+    setComplaint(null);
+    if (cooldownTimer.current) clearInterval(cooldownTimer.current);
+    setCooldown(0);
   }
 
   const refParam = searchParams.get("ref");
@@ -155,9 +243,9 @@ export function TrackComplaintForm() {
     }
 
     const controller = new AbortController();
-    lookup(refParam, controller.signal);
+    requestCode(refParam);
     return () => controller.abort();
-  }, [lookup, refParam, tv]);
+  }, [requestCode, refParam, tv]);
 
   const latestNote = complaint?.history
     ?.slice()
@@ -171,73 +259,154 @@ export function TrackComplaintForm() {
 
   return (
     <div>
-      <form onSubmit={handleSubmit} noValidate>
-        {error ? (
-          <div
-            id={errorSummaryId}
-            tabIndex={-1}
-            role="alert"
-            className="mb-8 border-l-8 border-[#d4351c] bg-[#f3f2f1] px-5 py-5 outline-none"
-          >
-            <h2 className="text-lg font-semibold text-destructive">
-              {t("errorTitle")}
-            </h2>
-            <p className="mt-3 text-base">
-              <a
-                href="#registrationNumber"
-                className="font-medium text-destructive underline-offset-4 hover:underline"
-              >
-                {error}
-              </a>
-            </p>
-          </div>
-        ) : null}
-
-        <div>
-          <label htmlFor="registrationNumber" className={labelClassName}>
-            {t("registrationNumber")}
-          </label>
-          <p id="registrationNumber-hint" className={hintClassName}>
-            {t("registrationHint")}
-          </p>
-          <input
-            id="registrationNumber"
-            name="registrationNumber"
-            autoComplete="off"
-            spellCheck="false"
-            required
-            value={registrationNumber}
-            aria-invalid={Boolean(error)}
-            aria-describedby={
-              error
-                ? "registrationNumber-hint registrationNumber-error"
-                : "registrationNumber-hint"
-            }
-            className={fieldClassName}
-            onChange={(event) => {
-              setRegistrationNumber(event.target.value);
-              setComplaint(null);
-            }}
-          />
-          {error ? (
-            <p id="registrationNumber-error" className={errorClassName}>
+      {error ? (
+        <div
+          id={errorSummaryId}
+          tabIndex={-1}
+          role="alert"
+          className="mb-8 border-l-8 border-[#d4351c] bg-[#f3f2f1] px-5 py-5 outline-none"
+        >
+          <h2 className="text-lg font-semibold text-destructive">
+            {t("errorTitle")}
+          </h2>
+          <p className="mt-3 text-base">
+            <a
+              href="#registrationNumber"
+              className="font-medium text-destructive underline-offset-4 hover:underline"
+            >
               {error}
-            </p>
-          ) : null}
+            </a>
+          </p>
         </div>
+      ) : null}
 
-        <div className="mt-10">
-          <Button
-            type="submit"
-            size="lg"
-            className="h-12 px-6 text-base"
-            disabled={loading}
-            aria-busy={loading}
-          >
-            {loading ? t("checking") : t("submit")}
-          </Button>
-        </div>
-      </form>
+      {step === "request" ? (
+        <form onSubmit={handleSubmit} noValidate>
+          <div>
+            <label htmlFor="registrationNumber" className={labelClassName}>
+              {t("registrationNumber")}
+            </label>
+            <p id="registrationNumber-hint" className={hintClassName}>
+              {t("registrationHint")}
+            </p>
+            <input
+              id="registrationNumber"
+              name="registrationNumber"
+              autoComplete="off"
+              spellCheck="false"
+              required
+              value={registrationNumber}
+              aria-invalid={Boolean(error)}
+              aria-describedby={
+                error
+                  ? "registrationNumber-hint registrationNumber-error"
+                  : "registrationNumber-hint"
+              }
+              className={fieldClassName}
+              onChange={(event) => {
+                setRegistrationNumber(event.target.value);
+                setComplaint(null);
+              }}
+            />
+            {error ? (
+              <p id="registrationNumber-error" className={errorClassName}>
+                {error}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="mt-10">
+            <Button
+              type="submit"
+              size="lg"
+              className="h-12 px-6 text-base"
+              disabled={loading}
+              aria-busy={loading}
+            >
+              {loading ? t("checking") : t("submit")}
+            </Button>
+          </div>
+        </form>
+      ) : null}
+
+      {step === "verify" ? (
+        <section
+          aria-labelledby="verify-heading"
+          className="motion-safe:animate-reveal"
+        >
+          <h2 id="verify-heading" className="text-[24px] font-bold">
+            {t("verifyTitle")}
+          </h2>
+          <p className="mt-3 max-w-[660px] text-[19px] leading-[1.315]">
+            {t("verifyIntro")}
+          </p>
+          <p className="mt-3 text-base text-[#505a5f]">{t("codeSent")}</p>
+
+          <form onSubmit={handleVerify} noValidate className="mt-6">
+            <div>
+              <label htmlFor="otp" className={labelClassName}>
+                {t("otpLabel")}
+              </label>
+              <p id="otp-hint" className={hintClassName}>
+                {t("otpHint")}
+              </p>
+              <input
+                id="otp"
+                name="otp"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                required
+                value={otp}
+                aria-invalid={Boolean(otpError)}
+                aria-describedby={otpError ? "otp-error" : "otp-hint"}
+                className={fieldClassName}
+                onChange={(event) => {
+                  setOtp(event.target.value.replace(/\D/g, "").slice(0, 6));
+                  setOtpError("");
+                }}
+              />
+              {otpError ? (
+                <p id="otp-error" className={errorClassName}>
+                  {otpError}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Button
+                type="submit"
+                size="lg"
+                className="h-12 px-6 text-base"
+                disabled={otpLoading}
+                aria-busy={otpLoading}
+              >
+                {otpLoading ? t("verifying") : t("otpSubmit")}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                size="lg"
+                className="h-12 px-6 text-base"
+                onClick={handleResend}
+                disabled={cooldown > 0 || loading}
+              >
+                {cooldown > 0 ? `${t("resend")} (${cooldown})` : t("resend")}
+              </Button>
+            </div>
+          </form>
+
+          <div className="mt-6">
+            <button
+              type="button"
+              onClick={backToRequest}
+              className="text-base text-[#1d70b8] underline underline-offset-4 hover:text-[#0b0c0c]"
+            >
+              {t("useDifferent")}
+            </button>
+          </div>
+        </section>
+      ) : null}
 
       {complaint ? (
         <section
