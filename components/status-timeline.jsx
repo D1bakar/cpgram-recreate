@@ -132,7 +132,7 @@ export function StatusTimeline({ complaint }) {
         aria-valuemax={100}
       >
         <div
-          className={`h-full rounded-full transition-all duration-500 ${barColor(
+          className={`h-full rounded-full transition-all duration-200 ${barColor(
             sla,
             terminal,
           )}`}

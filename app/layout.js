@@ -4,6 +4,7 @@ import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 
+import { PageContent } from "@/components/page-content";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
@@ -75,7 +76,7 @@ export default async function RootLayout({ children }) {
         <Script id="theme-bootstrap" strategy="beforeInteractive">
           {themeScript}
         </Script>
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <a
             href="#main-content"
             className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-[#ffdd00] focus:px-4 focus:py-3 focus:text-[19px] focus:font-bold focus:text-[#0b0c0c] focus:outline-none"
@@ -83,9 +84,7 @@ export default async function RootLayout({ children }) {
             Skip to main content
           </a>
           <SiteHeader />
-          <div className="flex min-h-0 flex-1 flex-col page-enter">
-            {children}
-          </div>
+          <PageContent>{children}</PageContent>
           <SiteFooter />
         </NextIntlClientProvider>
       </body>

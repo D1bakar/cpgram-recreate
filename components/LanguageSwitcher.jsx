@@ -22,7 +22,12 @@ export default function LanguageSwitcher({ inverted = false }) {
     router.refresh();
   };
 
-  const other = locale === "en" ? "hi" : "en";
+  const pathnameLocale = pathname.split("/")[1];
+  const current =
+    pathnameLocale === "en" || pathnameLocale === "hi"
+      ? pathnameLocale
+      : locale;
+  const other = current === "en" ? "hi" : "en";
   const label = other === "hi" ? "हिन्दी" : "English";
 
   return (

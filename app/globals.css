@@ -125,30 +125,25 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
+  @view-transition {
+    navigation: auto;
   }
 
   a,
-  button,
-  input,
-  select,
-  textarea {
+  button {
     transition:
-      color 180ms ease,
-      background-color 180ms ease,
-      border-color 180ms ease,
-      opacity 180ms ease;
+      color 110ms cubic-bezier(0.2, 0, 0, 1),
+      background-color 110ms cubic-bezier(0.2, 0, 0, 1);
   }
 
   .page-enter {
-    animation: fade-up 280ms ease-out;
+    animation: fade-up 150ms cubic-bezier(0.2, 0, 0, 1);
   }
 
   @keyframes fade-up {
     from {
       opacity: 0;
-      transform: translateY(8px);
+      transform: translateY(4px);
     }
     to {
       opacity: 1;
@@ -159,7 +154,7 @@
   @keyframes reveal {
     from {
       opacity: 0;
-      transform: translateY(6px);
+      transform: translateY(4px);
     }
     to {
       opacity: 1;
@@ -168,7 +163,27 @@
   }
 
   .motion-safe\:animate-reveal {
-    animation: reveal 320ms ease-out;
+    animation: reveal 150ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  @keyframes page-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes page-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  ::view-transition-old(page-content) {
+    animation: page-fade-out 120ms cubic-bezier(0.2, 0, 0, 1) both;
+  }
+
+  ::view-transition-new(page-content) {
+    animation: page-fade-in 120ms cubic-bezier(0.2, 0, 0, 1) both;
   }
 }
 
@@ -184,5 +199,10 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  ::view-transition-old(page-content),
+  ::view-transition-new(page-content) {
+    animation: none !important;
   }
 }
