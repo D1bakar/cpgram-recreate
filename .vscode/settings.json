@@ -1,5 +1,7 @@
 {
   "files.associations": {
-    "bun.lock": "plaintext"
-  }
+    "bun.lock": "plaintext",
+    "*.css": "tailwindcss"
+  },
+  "css.lint.unknownAtRules": "ignore"
 }
